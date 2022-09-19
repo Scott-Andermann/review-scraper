@@ -14,9 +14,22 @@ import requests
 #page = 1
 headers = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding":"gzip, deflate", "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "DNT":"1","Connection":"close", "Upgrade-Insecure-Requests":"1"}
 all_reviews = []
-def get_data(pages):
+def get_title(pages, item_no):
+        
+    r = requests.get(f'https://www.amazon.com/product-reviews/{item_no}/ref=cm_cr_arp_d_viewopt_sr?ie=UTF8&filterByStar=all_stars&reviewerType=all_reviews&pageNumber={pages}#reviews-filter-bar',
+                     headers=headers)
+
+    content = r.content
+    soup = BeautifulSoup(content, features='lxml')
+    try: 
+        title_text = soup.find('h1', attrs={'class': 'a-size-large a-text-ellipsis'})
+        return title_text.text
+    except AttributeError:
+        return 'exit'
+    
+
+def get_data(pages, item_no):
     reviews = []
-    item_no = 'B07TW9F4WR'
     r = requests.get(f'https://www.amazon.com/product-reviews/{item_no}/ref=cm_cr_arp_d_viewopt_sr?ie=UTF8&filterByStar=all_stars&reviewerType=all_reviews&pageNumber={pages}#reviews-filter-bar',
                      headers=headers)
 
@@ -42,26 +55,30 @@ def get_data(pages):
     except AttributeError:
         return 'exit'
 
-        # print(reviews)
-pages = 100
-for page in range(1, pages):
+def run_main(item_no): 
 
-    print(f'Scraping page {page}')
-    data = get_data(page)
-    #print(data)
-    if data == 'exit' or data ==[]:
-        break
-    all_reviews.append(data)
-    pause = random.uniform(1, 5)
-    print(f'Pausing for {pause} seconds')
-    time.sleep(pause)
-#print(all_reviews)
-flatten = lambda l: [item for sublist in l for item in sublist]
-df = pd.DataFrame(flatten(all_reviews), columns=['Title', 'Review', 'StarRating', 'Date'])
-#print(df.head())
-df.to_csv('Milwaukee_switch_amazon_reviews.csv', index=False, encoding='utf-8')
-print(f'Finished scraping, {len(df.index)} reviews gathered')
-"""for r in reviews:
-    print(r)
-print(len(reviews))"""
+    pages = 3
 
+    title = get_title(1, item_no)
+
+
+    for page in range(1, pages):
+
+        print(f'Scraping page {page}')
+        data = get_data(page, item_no)
+        if data == 'exit' or data ==[]:
+            break
+        all_reviews.append(data)
+        pause = random.uniform(1, 5)
+        print(f'Pausing for {pause} seconds')
+        time.sleep(pause)
+
+    flatten = lambda l: [item for sublist in l for item in sublist]
+    df = pd.DataFrame(flatten(all_reviews), columns=['Title', 'Review', 'StarRating', 'Date'])
+
+    # need to get title from webpage
+    df.to_csv(f'scraped-data/{title}.csv', index=False, encoding='utf-8')
+    print(f'Finished scraping, {len(df.index)} reviews gathered')
+
+
+# run_main('B08VF6ZVMH')
