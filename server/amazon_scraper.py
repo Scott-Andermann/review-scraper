@@ -1,13 +1,6 @@
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 import re
 import time
-from datetime import datetime
-import matplotlib.dates as mdates
-import matplotlib.ticker as ticker
-from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import random
 import requests
@@ -23,10 +16,10 @@ def get_title(pages, item_no):
     soup = BeautifulSoup(content, features='lxml')
     try: 
         title_text = soup.find('h1', attrs={'class': 'a-size-large a-text-ellipsis'})
+        # print(title_text.text)
         return title_text.text
     except AttributeError:
         return 'exit'
-    
 
 def get_data(pages, item_no):
     reviews = []
@@ -39,7 +32,7 @@ def get_data(pages, item_no):
     #print(soup.prettify())
     try:
         for d in soup.findAll('div', attrs={'class':'a-section celwidget'}):
-            #input(d)
+            # print('d' + d)
             title = d.find('a', attrs={'data-hook':'review-title'})
             rev = d.find('span', attrs={'data-hook':'review-body'})
             stars = d.find('i', attrs={'data-hook':'review-star-rating'})
@@ -50,9 +43,10 @@ def get_data(pages, item_no):
             r_stars = stars.find('span').text
             r_date = date.text
             reviews.append([r_title, r, r_stars, r_date])
-            #print(reviews)
+        # print(reviews)
         return reviews
-    except AttributeError:
+    except AttributeError as e:
+        print('ERROR: ' + e)
         return 'exit'
 
 def run_main(item_no): 
@@ -60,25 +54,27 @@ def run_main(item_no):
     pages = 2
 
     title = get_title(1, item_no)
+    title = re.sub('[^A-Za-z0-9 ]+', '', title)
 
 
     for page in range(1, pages):
 
-        print(f'Scraping page {page}')
+        # print(f'Scraping page {page}')
         data = get_data(page, item_no)
         if data == 'exit' or data ==[]:
             break
         all_reviews.append(data)
         pause = random.uniform(1, 5)
-        print(f'Pausing for {pause} seconds')
+        # print(f'Pausing for {pause} seconds')
         time.sleep(pause)
 
     flatten = lambda l: [item for sublist in l for item in sublist]
     df = pd.DataFrame(flatten(all_reviews), columns=['Title', 'Review', 'StarRating', 'Date'])
-
+    
     # need to get title from webpage
     df.to_csv(f'scraped-data/{title}.csv', index=False, encoding='utf-8')
-    print(f'Finished scraping, {len(df.index)} reviews gathered')
+    # print(f'Finished scraping {title}, {len(df.index)} reviews gathered')
+    print({'title': title, 'numberReviews': len(df.index)})
 
 
 # run_main('B08VF6ZVMH')
