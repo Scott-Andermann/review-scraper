@@ -57,7 +57,7 @@ def get_data(pages, item_no):
 
 def run_main(item_no): 
 
-    pages = 3
+    pages = 2
 
     title = get_title(1, item_no)
 
