@@ -3,6 +3,8 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const { spawn } = require('child_process')
 const { response } = require('express')
+const AWS = require('aws-sdk')
+
 const app = express()
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
@@ -10,12 +12,40 @@ app.use(cors({
     origin: 'http://localhost:3000'
 }))
 
+const BUCKET_NAME = 'amazonreviewdata'
+let s3data;
+
+const s3 = new AWS.S3({
+
+})
+
+const getFilesInBucket = async (BUCKET_NAME) => {
+    var bucketParams = {
+        Bucket: BUCKET_NAME,
+    }
+
+    s3.listObjects(bucketParams, function(err, data) {
+        if (err) console.log('Error: ', err);
+        else {
+            // console.log('Success');
+            s3data = data.Contents
+            titles = s3data.map(obj => {
+                return {title: obj.Key.slice(0,-4), complete: true}})
+            // console.log(titles);
+        }
+    })
+
+}
+
 // const itemID = 'B08VF6ZVMH'
+let titles
+getFilesInBucket(BUCKET_NAME)
 let clients = []
+let items = []
 let itemID
 let data
-let titles = []
 let reviews
+// console.log(titles);
 
 const runPy = async (arg, success, nosuccess) => {
     const pyprog = spawn('python', ['hello.py', 'scrape', arg])
@@ -85,6 +115,12 @@ const eventConnection = (req, res) => {
     // }, 1000)
 
     writeEvent(newClient, JSON.stringify({ data: {id: newClient.id }}))
+    sendEvent(newClient, JSON.stringify({
+        data: {
+            type: 'titles',
+            titles: titles
+        }
+    }))
     req.on('close', () => {
         console.log(`${sseId} Connection Closed`);
         clients = clients.filter(client => client.id !== sseId);
@@ -101,48 +137,65 @@ app.get('/status', (req, res) => {
 
 
 app.post('/add', async (req, res) => {
-    console.log('POST /')
+    console.log('ADD ITEM /')
 
     itemID = req.body.itemID
     id = req.body.id
     const client = clients.find(client => id == client.id)
-    sendEvent(client, JSON.stringify({ data: itemID }))
 
-
-    // return res.json({message: 'thank you'})
-    // res.sendStatus(200)
-
-    await runPy(itemID, function (fromRunPy) {
-        reviews = fromRunPy.toString()
-        console.log('scraping finished');
+    if (items.includes(itemID)) {
         sendEvent(client, JSON.stringify({
             data: {
-                type: 'scrape',
-                message: 'scraping finished'
+                type: 'note',
+                message: 'Item has already been scraped, delete existing data before re-submitting request'
             }
         }))
-    }, function (fromRunPy) {
-        console.log(fromRunPy.toString())
-    })
+        res.end()
+    } else {
 
-    await getTitle(itemID, function (fromPy) {
-        titles.push(fromPy.toString())
-        console.log(titles);
-        jsonTitles = JSON.stringify(titles)
-        sendEvent(client, JSON.stringify({
-            data: {
-                type: 'titles',
-                titles: titles
-            }
-        }))
-        res.end(fromPy);
-    },
+        
+        // sendEvent(client, JSON.stringify({ data: itemID }))
+        
+        items.push(itemID)
+        
+        await runPy(itemID, function (fromRunPy) {
+            reviews = fromRunPy.toString()
+            console.log('scraping finished');
+            titles = titles.map(obj => {
+                if (obj.id === itemID) {
+                  return {...obj, complete: true};
+                }
+                return obj;
+              })
+            sendEvent(client, JSON.stringify({
+                data: {
+                    type: 'scrape',
+                    id: itemID,
+                    message: 'scraping finished'
+                }
+            }))
+        }, function (fromRunPy) {
+            console.log(fromRunPy.toString())
+        })
+        
+        await getTitle(itemID, function (fromPy) {
+            titles.push({id: itemID, title: fromPy.toString(), complete: false})
+            console.log(titles);
+            jsonTitles = JSON.stringify(titles)
+            sendEvent(client, JSON.stringify({
+                data: {
+                    type: 'titles',
+                    titles: titles
+                }
+            }))
+        },
         function (fromPy) {
             console.log(fromPy.toString())
         })
-    res.end();
-})
-
+        res.end();
+    }
+    })
+    
 app.get('/data', (req, res) => {
     if (req.headers.accept === 'text/event-stream') {
         eventConnection(req, res)
@@ -150,5 +203,7 @@ app.get('/data', (req, res) => {
         res.json({ message: 'ok' })
     }
 })
+
+
 
 app.listen(4000, () => console.log('Application running on port 4000'))

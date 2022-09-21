@@ -22,14 +22,25 @@ function App() {
     events.onmessage = (event) => {
       const response = JSON.parse(event.data)
 
+
       if (response.data.id) {
         id = response.data.id
       }
-      if (response.data.type === 'scrape')
+      if (response.data.type === 'scrape'){
         console.log(response);
+        setTitles(prev => prev.map(obj => {
+          if (obj.id === response.data.id) {
+            return {...obj, complete: true};
+          }
+        
+          return obj;
+        }))
+      }
       if (response.data.type === 'titles'){
+        console.log(response.data)
         setTitles(response.data.titles);
       }
+      if (response.data.type ===  'note') console.log(response.data.message);
       // const parsedData = JSON.parse(event.data);
       // setTitles(prev => prev.concat(parsedData))
     };
@@ -42,6 +53,8 @@ function App() {
     }
 
   }, []);
+
+  console.log(titles);
 
   // const [itemID, setItemID] = useState('');
   const getID = () => {
@@ -79,7 +92,7 @@ function App() {
       <input value={webPage} onChange={(e) => setWebPage(e.target.value)}></input>
       <button onClick={addItem}>Add Item</button>
       {titles.length > 0 && <ul>
-        {titles.map(title => <li>{title}</li>)}
+        {titles.map(title => <li key={title.title}>{title.title} - {title.id} - {title.complete? 'finished' : 'not finished'}</li>)}
       </ul>}
       {/* <p><a href={reviewPage} target='_blank'>See Reviews</a></p> */}
     </div>

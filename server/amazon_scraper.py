@@ -4,6 +4,8 @@ import time
 from bs4 import BeautifulSoup
 import random
 import requests
+from io import StringIO
+import boto3
 #page = 1
 headers = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding":"gzip, deflate", "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "DNT":"1","Connection":"close", "Upgrade-Insecure-Requests":"1"}
 all_reviews = []
@@ -17,7 +19,8 @@ def get_title(pages, item_no):
     try: 
         title_text = soup.find('h1', attrs={'class': 'a-size-large a-text-ellipsis'})
         # print(title_text.text)
-        return title_text.text
+        title = re.sub('[^A-Za-z0-9 ]+', '', title_text.text)
+        return title
     except AttributeError:
         return 'exit'
 
@@ -49,12 +52,19 @@ def get_data(pages, item_no):
         print('ERROR: ' + e)
         return 'exit'
 
+def upload_to_s3(df, filename):
+    bucket = 'amazonreviewdata'
+    csv_buffer = StringIO()
+    df.to_csv(csv_buffer)
+    s3_resource = boto3.resource('s3')
+    s3_resource.Object(bucket, f'{filename}.csv').put(Body=csv_buffer.getvalue())
+
 def run_main(item_no): 
 
     pages = 2
 
     title = get_title(1, item_no)
-    title = re.sub('[^A-Za-z0-9 ]+', '', title)
+    # title = re.sub('[^A-Za-z0-9 ]+', '', title)
 
 
     for page in range(1, pages):
@@ -71,8 +81,9 @@ def run_main(item_no):
     flatten = lambda l: [item for sublist in l for item in sublist]
     df = pd.DataFrame(flatten(all_reviews), columns=['Title', 'Review', 'StarRating', 'Date'])
     
-    # need to get title from webpage
-    df.to_csv(f'scraped-data/{title}.csv', index=False, encoding='utf-8')
+
+    # df.to_csv(f'scraped-data/{title}.csv', index=False, encoding='utf-8')
+    upload_to_s3(df, title)
     # print(f'Finished scraping {title}, {len(df.index)} reviews gathered')
     print({'title': title, 'numberReviews': len(df.index)})
 

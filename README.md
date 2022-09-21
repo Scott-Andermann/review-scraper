@@ -10,3 +10,12 @@ Analysis Performed: Wordcloud - with separate word clouds for high and low rated
   Rating - individual reviews and average rating over time
   
 Scrapers are set up to change item ID in the code but future work should change this to an input prompt from the user.
+
+Update to web-app
+- User login to access previously scraped products
+✔️ Input field to select product to scrape
+ - Add form validation
+ - Prevent scraping on page with existing data
+✔️ Link to Python script for scraping - currently stores in local directory
+- Add data to cloud database for storage (DynamoDB?)
+- Link to python script for data analysis
