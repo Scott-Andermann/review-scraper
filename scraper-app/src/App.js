@@ -91,6 +91,21 @@ function App() {
       console.log('Error: ', e);
     }
   }
+  
+  const downloadItem = async (title) => {
+    const requestOptions = {
+      method: "post",
+      body: JSON.stringify({id: id, itemTitle: title }),
+      headers: { "Content-type": "application/json; charset=UTF-8" }
+    }
+    console.log(titles);
+    try {
+      const response = await fetch('http://localhost:4000/download', requestOptions)
+    } catch (e) {
+      console.log('Error: ', e);
+    }
+    
+  }
 
 
   return (
@@ -100,7 +115,11 @@ function App() {
       <input value={webPage} onChange={(e) => setWebPage(e.target.value)}></input>
       <button onClick={addItem}>Add Item</button>
       {titles.length > 0 && <ul>
-        {titles.map(title => <li key={title.title}>{title.title} - {title.id} - {title.complete? 'finished' : 'not finished'}<button onClick={() => deleteItem(title.title)}>Delete</button></li>)}
+        {titles.map(title => <li key={title.title}>
+            {title.title} - {title.id} - {title.complete? 'finished' : 'not finished'}
+            <button onClick={() => deleteItem(title.title)}>Delete</button>
+            <button onClick={() => downloadItem(title.title)}>Download</button>
+          </li>)}
       </ul>}
       {/* <p><a href={reviewPage} target='_blank'>See Reviews</a></p> */}
     </div>

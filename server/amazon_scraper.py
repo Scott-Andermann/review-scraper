@@ -63,10 +63,6 @@ def upload_to_s3(df, filename):
     s3_resource = boto3.resource('s3')
     s3_resource.Object(bucket, f'{filename}.csv').put(Body=csv_buffer.getvalue())
 
-def delete_from_s3(filename):
-    bucket = 'amazonreviewdata'
-    s3_resource = boto3.resource('s3')
-    s3_resource.Object(bucket, f'{filename}.csv').delete()
 
 def run_main(item_no): 
 

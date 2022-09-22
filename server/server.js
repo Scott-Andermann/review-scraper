@@ -3,6 +3,9 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const { spawn } = require('child_process')
 const { response } = require('express')
+const axios = require('axios')
+const downloadsFolder = require('downloads-folder')
+const fs = require('fs')
 const AWS = require('aws-sdk')
 const { title } = require('process')
 
@@ -17,31 +20,54 @@ const BUCKET_NAME = 'amazonreviewdata'
 let s3data;
 
 const s3 = new AWS.S3(
-// add credentials here
-// locally stored at ~/.aws/credentials
+    // add credentials here
+    // locally stored at ~/.aws/credentials
 )
 
-const getFilesInBucket = async (BUCKET_NAME) => {
+const getObjectsInBucket = async () => {
     var bucketParams = {
         Bucket: BUCKET_NAME,
     }
 
-    s3.listObjects(bucketParams, function(err, data) {
+    s3.listObjects(bucketParams, function (err, data) {
         if (err) console.log('Error: ', err);
         else {
             // console.log('Success');
             s3data = data.Contents
             titles = s3data.map(obj => {
-                return {title: obj.Key.slice(0,-4), complete: true}})
+                return { title: obj.Key.slice(0, -4), complete: true }
+            })
             // console.log(titles);
         }
     })
 
 }
 
+const deleteS3Object = async (filename) => {
+    var bucketParams = {
+        Bucket: BUCKET_NAME,
+        Key: `${filename}.csv`
+    }
+    
+    s3.deleteObject(bucketParams, function (err, data) {
+        if (err) console.log(err, err.stack);
+    })
+}
+
+const downloadS3Object = async (filename) => {
+    var bucketParams = {
+        Bucket: BUCKET_NAME,
+        Key: `${filename}.csv`
+    }
+    // s3.downloadS3Object(bucketParams, function(err, data){
+    //     if (err) console.log(err, err.stack)
+    // })
+
+}
+
 // const itemID = 'B08VF6ZVMH'
 let titles
-getFilesInBucket(BUCKET_NAME)
+getObjectsInBucket(BUCKET_NAME)
 let clients = []
 let items = []
 let itemID
@@ -79,18 +105,6 @@ const getTitle = async (arg, success, nosuccess) => {
     })
 }
 
-const deleteS3Item = async (filename, success, nosuccess) => {
-    const pyprog = spawn('python', ['hello.py', 'delete', filename])
-
-    pyprog.stdout.on('data', function(data) {
-        console.log('deleting item from S3');
-        success(data)
-    })
-
-    pyprog.stderr.on('data', (data) => {
-        nosuccess(data)
-    })
-}
 
 const sendEventsToAll = (newItem) => {
     // call as shown below
@@ -129,7 +143,7 @@ const eventConnection = (req, res) => {
     //     // writeEvent(newClient, 'test data goes here')
     // }, 1000)
 
-    writeEvent(newClient, JSON.stringify({ data: {id: newClient.id }}))
+    writeEvent(newClient, JSON.stringify({ data: { id: newClient.id } }))
     sendEvent(newClient, JSON.stringify({
         data: {
             type: 'titles',
@@ -169,16 +183,16 @@ app.post('/add', async (req, res) => {
     } else {
 
         items.push(itemID)
-        
+
         await runPy(itemID, function (fromRunPy) {
             reviews = fromRunPy.toString()
             console.log('scraping finished');
             titles = titles.map(obj => {
                 if (obj.id === itemID) {
-                  return {...obj, complete: true};
+                    return { ...obj, complete: true };
                 }
                 return obj;
-              })
+            })
             sendEvent(client, JSON.stringify({
                 data: {
                     type: 'scrape',
@@ -189,9 +203,9 @@ app.post('/add', async (req, res) => {
         }, function (fromRunPy) {
             console.log(fromRunPy.toString())
         })
-        
+
         await getTitle(itemID, function (fromPy) {
-            titles.push({id: itemID, title: fromPy.toString(), complete: false})
+            titles.push({ id: itemID, title: fromPy.toString(), complete: false })
             // console.log(titles);
             jsonTitles = JSON.stringify(titles)
             sendEvent(client, JSON.stringify({
@@ -201,12 +215,12 @@ app.post('/add', async (req, res) => {
                 }
             }))
         },
-        function (fromPy) {
-            console.log(fromPy.toString())
-        })
+            function (fromPy) {
+                console.log(fromPy.toString())
+            })
         res.end();
     }
-    })
+})
 
 app.post('/delete', async (req, res) => {
     console.log('DELETE ITEM /');
@@ -215,19 +229,46 @@ app.post('/delete', async (req, res) => {
     const client = clients.find(client => id == client.id)
     // console.log(titles);
     // console.log(itemTitle);
-    if (titles.find(title => title.title === itemTitle)){
+    if (titles.find(title => title.title === itemTitle)) {
         titles.filter(title => title.title !== itemTitle)
-        await deleteS3Item(itemTitle, function(fromPy) {
-        }, function(fromPy){
-            console.log(fromPy.toString())
-        })
+        await deleteS3Object(itemTitle)
+        console.log(`${itemTitle} removed from database`);
     } else {
         console.log('Item does not exist in database')
     }
 
     res.end()
 })
-    
+
+app.post('/download', async (req, res) => {
+    console.log('DOWNLOAD ITEM /');
+    id = req.body.id
+    itemTitle = req.body.itemTitle
+    const client = clients.find(client => id == client.id)
+    var bucketParams = {
+        Bucket: BUCKET_NAME,
+        Key: `${itemTitle}.csv`,
+        Expires: 3000
+    }
+    const basePath = downloadsFolder()
+    const fullPath = `${basePath}/${itemTitle}.csv`
+    const url = await s3.getSignedUrlPromise('getObject', bucketParams).catch((err) => console.log(err))
+    try {
+
+        const response = await axios.get(url, {
+            responseType: 'stream',
+        })
+        const istream = response.data;
+        const ostream = fs.createWriteStream(fullPath);
+        
+        istream.pipe(ostream)
+    } catch(e) {
+        console.log('Download Error: ', e);
+    }
+
+    res.end()
+})
+
 app.get('/data', (req, res) => {
     if (req.headers.accept === 'text/event-stream') {
         eventConnection(req, res)
