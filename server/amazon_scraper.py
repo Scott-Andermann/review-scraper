@@ -36,16 +36,20 @@ def get_data(pages, item_no):
     try:
         for d in soup.findAll('div', attrs={'class':'a-section celwidget'}):
             # print('d' + d)
-            title = d.find('a', attrs={'data-hook':'review-title'})
-            rev = d.find('span', attrs={'data-hook':'review-body'})
-            stars = d.find('i', attrs={'data-hook':'review-star-rating'})
-            date = d.find('span', attrs={'data-hook':'review-date'})
-            #reviews.append(rev.text.strip())
-            r_title = title.find('span').text
-            r = rev.find('span').text.strip()
-            r_stars = stars.find('span').text
-            r_date = date.text
-            reviews.append([r_title, r, r_stars, r_date])
+            try:
+                title = d.find('a', attrs={'data-hook':'review-title'})
+                rev = d.find('span', attrs={'data-hook':'review-body'})
+                stars = d.find('i', attrs={'data-hook':'review-star-rating'})
+                date = d.find('span', attrs={'data-hook':'review-date'})
+                #reviews.append(rev.text.strip())
+                r_title = title.find('span').text
+                r = rev.find('span').text.strip()
+                r_stars = stars.find('span').text
+                r_date = date.text
+                reviews.append([r_title, r, r_stars, r_date])
+            except AttributeError as e:
+                print(e)
+                continue
         # print(reviews)
         return reviews
     except AttributeError as e:
@@ -58,6 +62,11 @@ def upload_to_s3(df, filename):
     df.to_csv(csv_buffer)
     s3_resource = boto3.resource('s3')
     s3_resource.Object(bucket, f'{filename}.csv').put(Body=csv_buffer.getvalue())
+
+def delete_from_s3(filename):
+    bucket = 'amazonreviewdata'
+    s3_resource = boto3.resource('s3')
+    s3_resource.Object(bucket, f'{filename}.csv').delete()
 
 def run_main(item_no): 
 

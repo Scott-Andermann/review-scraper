@@ -4,6 +4,7 @@ const cors = require('cors')
 const { spawn } = require('child_process')
 const { response } = require('express')
 const AWS = require('aws-sdk')
+const { title } = require('process')
 
 const app = express()
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -15,9 +16,10 @@ app.use(cors({
 const BUCKET_NAME = 'amazonreviewdata'
 let s3data;
 
-const s3 = new AWS.S3({
-
-})
+const s3 = new AWS.S3(
+// add credentials here
+// locally stored at ~/.aws/credentials
+)
 
 const getFilesInBucket = async (BUCKET_NAME) => {
     var bucketParams = {
@@ -74,6 +76,19 @@ const getTitle = async (arg, success, nosuccess) => {
 
     pyprog.stderr.on('data', (data) => {
         nosuccess(data);
+    })
+}
+
+const deleteS3Item = async (filename, success, nosuccess) => {
+    const pyprog = spawn('python', ['hello.py', 'delete', filename])
+
+    pyprog.stdout.on('data', function(data) {
+        console.log('deleting item from S3');
+        success(data)
+    })
+
+    pyprog.stderr.on('data', (data) => {
+        nosuccess(data)
     })
 }
 
@@ -153,9 +168,6 @@ app.post('/add', async (req, res) => {
         res.end()
     } else {
 
-        
-        // sendEvent(client, JSON.stringify({ data: itemID }))
-        
         items.push(itemID)
         
         await runPy(itemID, function (fromRunPy) {
@@ -180,7 +192,7 @@ app.post('/add', async (req, res) => {
         
         await getTitle(itemID, function (fromPy) {
             titles.push({id: itemID, title: fromPy.toString(), complete: false})
-            console.log(titles);
+            // console.log(titles);
             jsonTitles = JSON.stringify(titles)
             sendEvent(client, JSON.stringify({
                 data: {
@@ -195,6 +207,26 @@ app.post('/add', async (req, res) => {
         res.end();
     }
     })
+
+app.post('/delete', async (req, res) => {
+    console.log('DELETE ITEM /');
+    id = req.body.id
+    itemTitle = req.body.itemTitle
+    const client = clients.find(client => id == client.id)
+    // console.log(titles);
+    // console.log(itemTitle);
+    if (titles.find(title => title.title === itemTitle)){
+        titles.filter(title => title.title !== itemTitle)
+        await deleteS3Item(itemTitle, function(fromPy) {
+        }, function(fromPy){
+            console.log(fromPy.toString())
+        })
+    } else {
+        console.log('Item does not exist in database')
+    }
+
+    res.end()
+})
     
 app.get('/data', (req, res) => {
     if (req.headers.accept === 'text/event-stream') {
