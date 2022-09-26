@@ -173,7 +173,7 @@ app.post('/add', async (req, res) => {
     itemID = req.body.itemID
     id = req.body.clientID
     const client = clients.find(client => id == client.id)
-    console.log(client);
+    
     if (items.includes(itemID)) {
         sendEvent(client, JSON.stringify({
             data: {
@@ -207,7 +207,7 @@ app.post('/add', async (req, res) => {
         })
 
         await getTitle(itemID, function (fromPy) {
-            titles.push({ id: itemID, title: fromPy.toString().replace(/[\r\n]/gm, ''), complete: false })
+            titles.push({ id: itemID, title: itemID + fromPy.toString().replace(/[\r\n]/gm, ''), complete: false })
             // console.log(titles);
             sendEvent(client, JSON.stringify({
                 data: {
@@ -261,34 +261,44 @@ app.post('/download', async (req, res) => {
         })
         const istream = response.data;
         const ostream = fs.createWriteStream(fullPath);
-        
+
         istream.pipe(ostream)
-    } catch(e) {
+    } catch (e) {
         console.log('Download Error: ', e);
     }
 
     res.end()
 })
 
-app.post('/get_data', async (req, res) =>{
-    const key = req.body.title
+app.post('/get_data', async (req, res) => {
+    // const key = req.body.title
+    const keys = req.body.titleList
     const id = req.body.clientID
     const client = clients.find(client => id == client.id)
 
-    const bucketParams = {
-        Bucket: BUCKET_NAME,
-        Key: `${key}.csv`
-    }
-
+    // const bucketParams = keys.map(key => {
+    //     return {Bucket: BUCKET_NAME,
+    //         Key: `${key}.csv`
+    //     }
+    // })
+    // const bucketParams = {
+    //     Bucket: BUCKET_NAME,
+    //     Key: `${key}.csv`
+    // }
+    let csvData = []
     try {
-        const stream = s3.getObject(bucketParams).createReadStream();
-        const csvData = await csv().fromStream(stream);
-        console.log(client.id);
+        for (key of keys) {
+            // console.log(key)
+            let stream = s3.getObject({ Bucket: BUCKET_NAME, Key: `${key}.csv` }).createReadStream();
+            csvData.push({ name: key, data: await csv().fromStream(stream) });
+        }
+
         data = JSON.stringify({
             data: {
                 type: 'getFromCSV',
                 csvData: csvData
-            }})
+            }
+        })
         sendEvent(client, data)
 
     } catch (e) {

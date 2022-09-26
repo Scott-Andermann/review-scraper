@@ -85,7 +85,7 @@ def run_main(item_no):
 
     pages = 2
 
-    title = get_title(1, item_no)
+    title = item_no + get_title(1, item_no)
     # title = re.sub('[^A-Za-z0-9 ]+', '', title)
 
     for page in range(1, pages):
@@ -104,7 +104,7 @@ def run_main(item_no):
                       'Title', 'Review', 'StarRating', 'Date'])
     # df.to_csv(f'scraped-data/{title}.csv', index=False, encoding='utf-8')
     df = sentiment(df)
-    
+
     upload_to_s3(df, title)
     # print(f'Finished scraping {title}, {len(df.index)} reviews gathered')
     # print({'title': title, 'numberReviews': len(df.index)})

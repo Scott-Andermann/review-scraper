@@ -7,8 +7,9 @@ let id
 function App() {
   const [webPage, setWebPage] = useState('https://www.amazon.com/Sceptre-Monitor-Speakers-Machine-C249W-1920RN/dp/B09M2SQ3PJ');
   const [titles, setTitles] = useState([]);
-  const [clientID, setClientID] = useState('')
-  const [csvData, setCsvData] = useState([])
+  const [clientID, setClientID] = useState('');
+  const [csvData, setCsvData] = useState([]);
+  const [titleList, setTitleList] = useState([]);
   // titles data structure: 
   // [{title: String, complete: Bool}]
   const [listening, setListening] = useState(false);
@@ -42,7 +43,7 @@ function App() {
       }
       if (response.data.type === 'getFromCSV') {
         
-        // console.log(response.data);
+        console.log(response.data);
         setCsvData(response.data.csvData)
       }
       if (response.data.type ===  'note') console.log(response.data.message);
@@ -117,10 +118,10 @@ function App() {
     
   }
 
-  const getData = async (title) => {
+  const getData = async () => {
     const requestOptions = {
       method: "post",
-      body: JSON.stringify({clientID: clientID, title: title}),
+      body: JSON.stringify({clientID: clientID, titleList: titleList}),
       headers: { "Content-type": "application/json; charset=UTF-8"}
     }
     try {
@@ -128,6 +129,13 @@ function App() {
     } catch (e) {
       console.log('Error: ', e);
     }
+  }
+
+  const changeCheck = (title) => {
+    if (!titleList.includes(title))
+      setTitleList(prev => [...prev, title])
+    if (titleList.includes(title))
+      setTitleList(prev => prev.filter(element => element !== title))
   }
 
   return (
@@ -138,13 +146,14 @@ function App() {
       <button onClick={addItem}>Add Item</button>
       {titles.length > 0 && <ul>
         {titles.map(title => <li key={title.title}>
-            {title.title} - {title.id} - {title.complete? 'finished' : 'not finished'}
+            <input type='checkbox' onChange={() => changeCheck(title.title)}></input>
+            {title.title.slice(10,50)} - 
             <button onClick={() => deleteItem(title.title)}>Delete</button>
             <button onClick={() => downloadItem(title.title)}>Download</button>
-            <button onClick={() => getData(title.title)}>Get Data</button>
           </li>)}
       </ul>}
       {/* <p><a href={reviewPage} target='_blank'>See Reviews</a></p> */}
+      <button onClick={getData}>Update Chart</button>
       {csvData.length > 0 && <Graph data={csvData}/>}
     </div>
   );

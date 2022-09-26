@@ -5,26 +5,32 @@ import Plot from 'react-plotly.js'
 const Graph = ({ data }) => {
     // const arr = [{x: [1,2,3,4],y: [1,2,3,4]},{x:[2,5,7,3], y:[1,2,3,4]}];
     console.log(data);
-    let x = []
+    let traces = []
     let y = []
+    let key = []
     const parsedData = data.map(element => {
-        x.push(element.Date);
-        y.push(element.Sentiment)
+        console.log(element.data);
+        let subx = []
+        let suby = []
+        element.data.map(sub => {
+            subx.push(sub.Date);
+            suby.push(sub.Sentiment)
+        })
+        traces.push({
+            x: subx,
+            y: suby,
+            name: element.name.slice(10, 30),
+            type: 'scatter',
+            mode: 'markers',
+            // marker: { color: 'red' }
+        })
     })
 
-    console.log(x);
-    console.log(y);
     return (
         <div>
             <Plot
-                data={[{
-                    x: x,
-                    y: y,
-                    type: 'scatter',
-                    mode: 'markers',
-                    marker: { color: 'red' }
-                }]}
-                layout={{ width: 600, height: 400, title: 'A fancy plot' }}
+                data={traces}
+                layout={{ width: 600, height: 400, title: 'A fancy Sentiment plot' }}
             />
         </div>
     );
