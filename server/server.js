@@ -8,6 +8,8 @@ const downloadsFolder = require('downloads-folder')
 const fs = require('fs')
 const AWS = require('aws-sdk')
 const { title } = require('process')
+const { checkServerIdentity } = require('tls')
+const csv = require('csvtojson')
 
 const app = express()
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -48,7 +50,7 @@ const deleteS3Object = async (filename) => {
         Bucket: BUCKET_NAME,
         Key: `${filename}.csv`
     }
-    
+    titles = titles.filter(title => title.title !== itemTitle)
     s3.deleteObject(bucketParams, function (err, data) {
         if (err) console.log(err, err.stack);
     })
@@ -143,7 +145,7 @@ const eventConnection = (req, res) => {
     //     // writeEvent(newClient, 'test data goes here')
     // }, 1000)
 
-    writeEvent(newClient, JSON.stringify({ data: { id: newClient.id } }))
+    writeEvent(newClient, JSON.stringify({ data: { clientID: newClient.id } }))
     sendEvent(newClient, JSON.stringify({
         data: {
             type: 'titles',
@@ -169,9 +171,9 @@ app.post('/add', async (req, res) => {
     console.log('ADD ITEM /')
 
     itemID = req.body.itemID
-    id = req.body.id
+    id = req.body.clientID
     const client = clients.find(client => id == client.id)
-
+    console.log(client);
     if (items.includes(itemID)) {
         sendEvent(client, JSON.stringify({
             data: {
@@ -205,9 +207,8 @@ app.post('/add', async (req, res) => {
         })
 
         await getTitle(itemID, function (fromPy) {
-            titles.push({ id: itemID, title: fromPy.toString(), complete: false })
+            titles.push({ id: itemID, title: fromPy.toString().replace(/[\r\n]/gm, ''), complete: false })
             // console.log(titles);
-            jsonTitles = JSON.stringify(titles)
             sendEvent(client, JSON.stringify({
                 data: {
                     type: 'titles',
@@ -224,13 +225,13 @@ app.post('/add', async (req, res) => {
 
 app.post('/delete', async (req, res) => {
     console.log('DELETE ITEM /');
-    id = req.body.id
+    id = req.body.clientID
     itemTitle = req.body.itemTitle
     const client = clients.find(client => id == client.id)
     // console.log(titles);
     // console.log(itemTitle);
     if (titles.find(title => title.title === itemTitle)) {
-        titles.filter(title => title.title !== itemTitle)
+
         await deleteS3Object(itemTitle)
         console.log(`${itemTitle} removed from database`);
     } else {
@@ -242,7 +243,7 @@ app.post('/delete', async (req, res) => {
 
 app.post('/download', async (req, res) => {
     console.log('DOWNLOAD ITEM /');
-    id = req.body.id
+    id = req.body.clientID
     itemTitle = req.body.itemTitle
     const client = clients.find(client => id == client.id)
     var bucketParams = {
@@ -267,6 +268,33 @@ app.post('/download', async (req, res) => {
     }
 
     res.end()
+})
+
+app.post('/get_data', async (req, res) =>{
+    const key = req.body.title
+    const id = req.body.clientID
+    const client = clients.find(client => id == client.id)
+
+    const bucketParams = {
+        Bucket: BUCKET_NAME,
+        Key: `${key}.csv`
+    }
+
+    try {
+        const stream = s3.getObject(bucketParams).createReadStream();
+        const csvData = await csv().fromStream(stream);
+        console.log(client.id);
+        data = JSON.stringify({
+            data: {
+                type: 'getFromCSV',
+                csvData: csvData
+            }})
+        sendEvent(client, data)
+
+    } catch (e) {
+        console.log('Error: ', e);
+    }
+
 })
 
 app.get('/data', (req, res) => {

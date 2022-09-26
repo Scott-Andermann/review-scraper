@@ -5,6 +5,8 @@ from bs4 import BeautifulSoup
 import random
 import requests
 from io import StringIO
+from datetime import datetime
+from sentiment import sentiment
 import boto3
 #page = 1
 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding": "gzip, deflate",
@@ -28,6 +30,12 @@ def get_title(pages, item_no):
     except AttributeError:
         return 'exit'
 
+def convert_date(date):
+    res = re.sub(r'[^\w\s]', '', date)
+    res = res.split()[-3:]
+    s = ' '.join(res)
+    parsed = datetime.strptime(s, '%B %d %Y')
+    return parsed
 
 def get_data(pages, item_no):
     reviews = []
@@ -51,6 +59,7 @@ def get_data(pages, item_no):
                 r = rev.find('span').text.strip()
                 r_stars = stars.find('span').text
                 r_date = date.text
+                r_date = convert_date(r_date)
                 reviews.append([r_title, r, r_stars, r_date])
             except AttributeError as e:
                 print(e)
@@ -94,9 +103,11 @@ def run_main(item_no):
     df = pd.DataFrame(flatten(all_reviews), columns=[
                       'Title', 'Review', 'StarRating', 'Date'])
     # df.to_csv(f'scraped-data/{title}.csv', index=False, encoding='utf-8')
+    df = sentiment(df)
+    
     upload_to_s3(df, title)
     # print(f'Finished scraping {title}, {len(df.index)} reviews gathered')
-    print({'title': title, 'numberReviews': len(df.index)})
+    # print({'title': title, 'numberReviews': len(df.index)})
 
 
-run_main('B08VF6ZVMH')
+# run_main('B08VF6ZVMH')

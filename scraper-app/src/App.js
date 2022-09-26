@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Graph from './Graph';
 import './App.css';
 
 let id
@@ -6,6 +7,8 @@ let id
 function App() {
   const [webPage, setWebPage] = useState('https://www.amazon.com/Sceptre-Monitor-Speakers-Machine-C249W-1920RN/dp/B09M2SQ3PJ');
   const [titles, setTitles] = useState([]);
+  const [clientID, setClientID] = useState('')
+  const [csvData, setCsvData] = useState([])
   // titles data structure: 
   // [{title: String, complete: Bool}]
   const [listening, setListening] = useState(false);
@@ -20,8 +23,8 @@ function App() {
     events.onmessage = (event) => {
       const response = JSON.parse(event.data)
 
-      if (response.data.id) {
-        id = response.data.id
+      if (response.data.clientID) {
+        setClientID(response.data.clientID)
       }
       if (response.data.type === 'scrape'){
         console.log(response.data);
@@ -37,7 +40,14 @@ function App() {
         console.log(response.data)
         setTitles(response.data.titles);
       }
+      if (response.data.type === 'getFromCSV') {
+        
+        // console.log(response.data);
+        setCsvData(response.data.csvData)
+      }
       if (response.data.type ===  'note') console.log(response.data.message);
+
+      // else console.log(response.data);
     };
 
     events.onerror = (e) => {
@@ -65,7 +75,7 @@ function App() {
     const itemID = getID();
     const requestOptions = {
       method: "post",
-      body: JSON.stringify({id: id, itemID: itemID }),
+      body: JSON.stringify({clientID: clientID, itemID: itemID }),
       headers: { "Content-type": "application/json; charset=UTF-8" }
     }
     try {
@@ -80,7 +90,7 @@ function App() {
     console.log('delete this item: ', title);
     const requestOptions = {
       method: "post",
-      body: JSON.stringify({id: id, itemTitle: title }),
+      body: JSON.stringify({clientID: clientID, itemTitle: title }),
       headers: { "Content-type": "application/json; charset=UTF-8" }
     }
     console.log(titles);
@@ -95,7 +105,7 @@ function App() {
   const downloadItem = async (title) => {
     const requestOptions = {
       method: "post",
-      body: JSON.stringify({id: id, itemTitle: title }),
+      body: JSON.stringify({clientID: clientID, itemTitle: title }),
       headers: { "Content-type": "application/json; charset=UTF-8" }
     }
     console.log(titles);
@@ -107,6 +117,18 @@ function App() {
     
   }
 
+  const getData = async (title) => {
+    const requestOptions = {
+      method: "post",
+      body: JSON.stringify({clientID: clientID, title: title}),
+      headers: { "Content-type": "application/json; charset=UTF-8"}
+    }
+    try {
+      const response = await fetch('http://localhost:4000/get_data', requestOptions)
+    } catch (e) {
+      console.log('Error: ', e);
+    }
+  }
 
   return (
     <div className="App">
@@ -119,9 +141,11 @@ function App() {
             {title.title} - {title.id} - {title.complete? 'finished' : 'not finished'}
             <button onClick={() => deleteItem(title.title)}>Delete</button>
             <button onClick={() => downloadItem(title.title)}>Download</button>
+            <button onClick={() => getData(title.title)}>Get Data</button>
           </li>)}
       </ul>}
       {/* <p><a href={reviewPage} target='_blank'>See Reviews</a></p> */}
+      {csvData.length > 0 && <Graph data={csvData}/>}
     </div>
   );
 }
