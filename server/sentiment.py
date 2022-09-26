@@ -8,9 +8,21 @@ def sentiment(df):
     df = df.sort_values('Date')
     sia = SentimentIntensityAnalyzer()
     values = []
+    sumValues = 0
+    avgValues = []
+    sumStars = 0
+    avgStars = []
+    count = 1
     for i, row in df.iterrows():
         #print(row['Title'])
         sent = sia.polarity_scores(row['Title'])
         values.append(sent['compound'])
+        sumValues +=  float(sent['compound'])
+        sumStars += float(row['StarRating'])
+        avgValues.append(sumValues / (count))
+        avgStars.append(sumStars / (count))
+        count +=1
     df['Sentiment'] = values
+    df['avgSentiment'] = avgValues
+    df['avgStars'] = avgStars
     return df

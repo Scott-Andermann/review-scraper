@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Graph from './Graph';
+import Graph from './Graph/Graph';
 import './App.css';
 
 let id
@@ -10,6 +10,7 @@ function App() {
   const [clientID, setClientID] = useState('');
   const [csvData, setCsvData] = useState([]);
   const [titleList, setTitleList] = useState([]);
+  const [pageCount, setPageCount] = useState('10');
   // titles data structure: 
   // [{title: String, complete: Bool}]
   const [listening, setListening] = useState(false);
@@ -19,6 +20,7 @@ function App() {
 
     events.onopen = () => {
       console.log('SSE opened');
+      setListening(true)
     }
 
     events.onmessage = (event) => {
@@ -38,7 +40,7 @@ function App() {
         }))
       }
       if (response.data.type === 'titles'){
-        console.log(response.data)
+        // console.log(response.data)
         setTitles(response.data.titles);
       }
       if (response.data.type === 'getFromCSV') {
@@ -56,6 +58,7 @@ function App() {
     }
     return () => {
       events.close();
+      setListening(false)
     }
 
   }, []);
@@ -65,7 +68,7 @@ function App() {
       const urlArray = webPage.split('/');
       const index = urlArray.findIndex(element => element === 'dp');
 
-      return urlArray[index + 1]
+      return urlArray[index + 1].slice(0,10)
     } catch (e) {
       console.log('Error: ', e);
     }
@@ -76,7 +79,7 @@ function App() {
     const itemID = getID();
     const requestOptions = {
       method: "post",
-      body: JSON.stringify({clientID: clientID, itemID: itemID }),
+      body: JSON.stringify({clientID: clientID, itemID: itemID, pageCount: pageCount }),
       headers: { "Content-type": "application/json; charset=UTF-8" }
     }
     try {
@@ -119,6 +122,7 @@ function App() {
   }
 
   const getData = async () => {
+    console.log(titleList);
     const requestOptions = {
       method: "post",
       body: JSON.stringify({clientID: clientID, titleList: titleList}),
@@ -128,6 +132,12 @@ function App() {
       const response = await fetch('http://localhost:4000/get_data', requestOptions)
     } catch (e) {
       console.log('Error: ', e);
+    }
+  }
+
+  const onChangePageCount = (e) => {
+    if (e.target.value <= 50) {
+      setPageCount(e.target.value)
     }
   }
 
@@ -141,15 +151,18 @@ function App() {
   return (
     <div className="App">
       <h1>Amazon Review Scraper</h1>
+      <div className={listening ? 'status green': 'status red'}></div>
       <p>Enter URL of item: </p>
       <input value={webPage} onChange={(e) => setWebPage(e.target.value)}></input>
       <button onClick={addItem}>Add Item</button>
+      <p>Enter number of pages to scrape (max 50)</p>
+      <input type='number' value={pageCount} onChange={onChangePageCount}></input>
       {titles.length > 0 && <ul>
         {titles.map(title => <li key={title.title}>
-            <input type='checkbox' onChange={() => changeCheck(title.title)}></input>
-            {title.title.slice(10,50)} - 
-            <button onClick={() => deleteItem(title.title)}>Delete</button>
-            <button onClick={() => downloadItem(title.title)}>Download</button>
+            <input type='checkbox' onChange={() => changeCheck(title.title)} disabled={!title.complete}></input>
+            {title.title.slice(10,50)}... - <a href={`https://www.amazon.com/dp/${title.title.slice(0, 10)}`} target='_blank'>Link</a>
+            {title.complete && <button onClick={() => deleteItem(title.title)} disabled={!title.complete}>Delete</button>}
+            {title.complete && <button onClick={() => downloadItem(title.title)} disabled={!title.complete}>Download</button>}
           </li>)}
       </ul>}
       {/* <p><a href={reviewPage} target='_blank'>See Reviews</a></p> */}

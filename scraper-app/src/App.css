@@ -28,6 +28,21 @@
   color: #61dafb;
 }
 
+.status {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin: auto
+}
+
+.green {
+  background-color: green;
+}
+
+.red {
+  background-color: red;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

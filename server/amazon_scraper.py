@@ -8,6 +8,7 @@ from io import StringIO
 from datetime import datetime
 from sentiment import sentiment
 import boto3
+import json
 #page = 1
 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding": "gzip, deflate",
            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "DNT": "1", "Connection": "close", "Upgrade-Insecure-Requests": "1"}
@@ -21,9 +22,10 @@ def get_title(pages, item_no):
 
     content = r.content
     soup = BeautifulSoup(content, features='lxml')
+    # print(soup)
     try:
         title_text = soup.find(
-            'h1', attrs={'class': 'a-size-large a-text-ellipsis'})
+            'h1', attrs={'class': 'a-size-large'})
         # print(title_text.text)
         title = re.sub('[^A-Za-z0-9 ]+', '', title_text.text)
         return title
@@ -57,7 +59,7 @@ def get_data(pages, item_no):
                 # reviews.append(rev.text.strip())
                 r_title = title.find('span').text
                 r = rev.find('span').text.strip()
-                r_stars = stars.find('span').text
+                r_stars = stars.find('span').text[0]
                 r_date = date.text
                 r_date = convert_date(r_date)
                 reviews.append([r_title, r, r_stars, r_date])
@@ -81,9 +83,13 @@ def upload_to_s3(df, filename):
         Body=csv_buffer.getvalue())
 
 
-def run_main(item_no):
+def run_main(arg):
 
-    pages = 2
+    res = json.loads(arg)
+
+    pages = int(res['pageCount'])
+    item_no = res['item_no']
+
 
     title = item_no + get_title(1, item_no)
     # title = re.sub('[^A-Za-z0-9 ]+', '', title)
@@ -104,10 +110,10 @@ def run_main(item_no):
                       'Title', 'Review', 'StarRating', 'Date'])
     # df.to_csv(f'scraped-data/{title}.csv', index=False, encoding='utf-8')
     df = sentiment(df)
-
+    # print(df)
     upload_to_s3(df, title)
     # print(f'Finished scraping {title}, {len(df.index)} reviews gathered')
     # print({'title': title, 'numberReviews': len(df.index)})
 
 
-# run_main('B08VF6ZVMH')
+# run_main('B08VF6ZVMH', '10')

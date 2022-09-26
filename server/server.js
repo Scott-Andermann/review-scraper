@@ -37,7 +37,7 @@ const getObjectsInBucket = async () => {
             // console.log('Success');
             s3data = data.Contents
             titles = s3data.map(obj => {
-                return { title: obj.Key.slice(0, -4), complete: true }
+                return { title: obj.Key.slice(0, -4), complete: true, id: obj.Key.slice(0,10) }
             })
             // console.log(titles);
         }
@@ -51,6 +51,7 @@ const deleteS3Object = async (filename) => {
         Key: `${filename}.csv`
     }
     titles = titles.filter(title => title.title !== itemTitle)
+    // items = items.filter(item =>)
     s3.deleteObject(bucketParams, function (err, data) {
         if (err) console.log(err, err.stack);
     })
@@ -172,8 +173,9 @@ app.post('/add', async (req, res) => {
 
     itemID = req.body.itemID
     id = req.body.clientID
+    pageCount = req.body.pageCount
     const client = clients.find(client => id == client.id)
-    
+
     if (items.includes(itemID)) {
         sendEvent(client, JSON.stringify({
             data: {
@@ -185,8 +187,9 @@ app.post('/add', async (req, res) => {
     } else {
 
         items.push(itemID)
-
-        await runPy(itemID, function (fromRunPy) {
+        console.log(pageCount);
+        let arg = JSON.stringify({item_no: itemID, pageCount: pageCount})
+        await runPy(arg, function (fromRunPy) {
             reviews = fromRunPy.toString()
             console.log('scraping finished');
             titles = titles.map(obj => {
@@ -276,15 +279,6 @@ app.post('/get_data', async (req, res) => {
     const id = req.body.clientID
     const client = clients.find(client => id == client.id)
 
-    // const bucketParams = keys.map(key => {
-    //     return {Bucket: BUCKET_NAME,
-    //         Key: `${key}.csv`
-    //     }
-    // })
-    // const bucketParams = {
-    //     Bucket: BUCKET_NAME,
-    //     Key: `${key}.csv`
-    // }
     let csvData = []
     try {
         for (key of keys) {
