@@ -5,6 +5,8 @@
 /node_modules
 */.aws
 /.pnp
+*/env
+*/__pycache__
 .pnp.js
 
 # testing
