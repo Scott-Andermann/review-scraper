@@ -75,11 +75,11 @@ def get_data(pages, item_no):
 
 def upload_to_s3(df, filename):
     print('uploading')
-    bucket = 'amazonreviewdata'
+    BUCKET_NAME = 'amazonreviewdata'
     csv_buffer = StringIO()
     df.to_csv(csv_buffer)
     s3_resource = boto3.resource('s3')
-    s3_resource.Object(bucket, f'{filename}.csv').put(
+    s3_resource.Object(BUCKET_NAME, f'{filename}.csv').put(
         Body=csv_buffer.getvalue())
 
 

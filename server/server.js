@@ -270,15 +270,13 @@ app.post('/download', async (req, res) => {
 })
 
 app.post('/get_data', async (req, res) => {
-    // const key = req.body.title
     const keys = req.body.titleList
     const clientID = req.body.clientID
     const client = clients.find(client => clientID == client.id)
 
     let csvData = []
     try {
-        for (key of keys) {
-            // console.log(key)
+        for (let key of keys) {
             let stream = s3.getObject({ Bucket: BUCKET_NAME, Key: `${key}.csv` }).createReadStream();
             csvData.push({ name: key, data: await csv().fromStream(stream) });
         }
