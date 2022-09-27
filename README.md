@@ -36,4 +36,4 @@ How to run:
   2. Run frontend with 'npm start'
 4. Copy Amazon product page URL to site and click 'Add Item'
 
-<img src='./output.png'>
+![output](https://user-images.githubusercontent.com/43496008/192557695-2de03c64-db3e-4e36-8d8f-d53a2e05230b.PNG)
