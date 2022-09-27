@@ -31,17 +31,17 @@ const getObjectsInBucket = async () => {
         Bucket: BUCKET_NAME,
     }
 
-    s3.listObjects(bucketParams, function (err, data) {
-        if (err) console.log('Error: ', err);
-        else {
-            // console.log('Success');
-            s3data = data.Contents
-            titles = s3data.map(obj => {
-                return { title: obj.Key.slice(0, -4), complete: true, id: obj.Key.slice(0,10) }
-            })
-            // console.log(titles);
-        }
-    })
+    s3.listObjects(bucketParams,
+        function (err, data) {
+            if (err) console.log('Error: ', err);
+            else {
+                // console.log('Success');
+                s3data = data.Contents
+                titles = s3data.map(obj => {
+                    return { title: obj.Key.slice(0, -4), complete: true, id: obj.Key.slice(0, 10) }
+                })
+            }
+        })
 
 }
 
@@ -51,7 +51,7 @@ const deleteS3Object = async (filename) => {
         Key: `${filename}.csv`
     }
     titles = titles.filter(title => title.title !== itemTitle)
-    // items = items.filter(item =>)
+    items = items.filter(item => item !== itemTitle.slice(0,10))
     s3.deleteObject(bucketParams, function (err, data) {
         if (err) console.log(err, err.stack);
     })
@@ -69,14 +69,13 @@ const downloadS3Object = async (filename) => {
 }
 
 // const itemID = 'B08VF6ZVMH'
-let titles
+let titles // array of titles strored in S3
 getObjectsInBucket(BUCKET_NAME)
-let clients = []
-let items = []
+let clients = [] // array of clients that are connected
+let items = [] // array of items in 
 let itemID
+let clientID
 let data
-let reviews
-// console.log(titles);
 
 const runPy = async (arg, success, nosuccess) => {
     const pyprog = spawn('python', ['hello.py', 'scrape', arg])
@@ -84,8 +83,6 @@ const runPy = async (arg, success, nosuccess) => {
     pyprog.stdout.on('data', function (data) {
         console.log('running reviews...');
         success(data);
-
-        // console.log(arg);
     })
 
     pyprog.stderr.on('data', (data) => {
@@ -99,8 +96,6 @@ const getTitle = async (arg, success, nosuccess) => {
     pyprog.stdout.on('data', function (data) {
         console.log('running Title...');
         success(data);
-
-        // console.log(arg);
     })
 
     pyprog.stderr.on('data', (data) => {
@@ -147,7 +142,7 @@ const eventConnection = (req, res) => {
     // }, 1000)
 
     writeEvent(newClient, JSON.stringify({ data: { clientID: newClient.id } }))
-    sendEvent(newClient, JSON.stringify({
+    writeEvent(newClient, JSON.stringify({
         data: {
             type: 'titles',
             titles: titles
@@ -159,10 +154,6 @@ const eventConnection = (req, res) => {
     })
 }
 
-const sendEvent = (client, data) => {
-    writeEvent(client, data)
-}
-
 app.get('/status', (req, res) => {
     res.json({ clients: clients.length })
 })
@@ -172,12 +163,12 @@ app.post('/add', async (req, res) => {
     console.log('ADD ITEM /')
 
     itemID = req.body.itemID
-    id = req.body.clientID
+    clientID = req.body.clientID
     pageCount = req.body.pageCount
-    const client = clients.find(client => id == client.id)
+    const client = clients.find(client => clientID == client.id)
 
     if (items.includes(itemID)) {
-        sendEvent(client, JSON.stringify({
+        writeEvent(client, JSON.stringify({
             data: {
                 type: 'note',
                 message: 'Item has already been scraped, delete existing data before re-submitting request'
@@ -187,38 +178,41 @@ app.post('/add', async (req, res) => {
     } else {
 
         items.push(itemID)
-        console.log(pageCount);
-        let arg = JSON.stringify({item_no: itemID, pageCount: pageCount})
-        await runPy(arg, function (fromRunPy) {
-            reviews = fromRunPy.toString()
-            console.log('scraping finished');
-            titles = titles.map(obj => {
-                if (obj.id === itemID) {
-                    return { ...obj, complete: true };
-                }
-                return obj;
+        let arg = { item_no: itemID, pageCount: pageCount }
+        let stringArg = JSON.stringify(arg)
+        await runPy(stringArg,
+            function (fromRunPy) {
+                reviews = fromRunPy.toString()
+                console.log(`${arg.item_no} scraping finished`);
+                titles = titles.map(obj => {
+                    if (obj.id === arg.item_no) {
+                        return { ...obj, complete: true };
+                    }
+                    return obj;
+                })
+                writeEvent(client, JSON.stringify({
+                    data: {
+                        type: 'scrape',
+                        id: arg.item_no,
+                        message: 'scraping finished'
+                    }
+                }))
+            },
+            function (fromRunPy) {
+                console.log(fromRunPy.toString())
             })
-            sendEvent(client, JSON.stringify({
-                data: {
-                    type: 'scrape',
-                    id: itemID,
-                    message: 'scraping finished'
-                }
-            }))
-        }, function (fromRunPy) {
-            console.log(fromRunPy.toString())
-        })
 
-        await getTitle(itemID, function (fromPy) {
-            titles.push({ id: itemID, title: itemID + fromPy.toString().replace(/[\r\n]/gm, ''), complete: false })
-            // console.log(titles);
-            sendEvent(client, JSON.stringify({
-                data: {
-                    type: 'titles',
-                    titles: titles
-                }
-            }))
-        },
+        await getTitle(itemID,
+            function (fromPy) {
+                titles.push({ id: itemID, title: itemID + fromPy.toString().replace(/[\r\n]/gm, ''), complete: false })
+                // console.log(titles);
+                writeEvent(client, JSON.stringify({
+                    data: {
+                        type: 'titles',
+                        titles: titles
+                    }
+                }))
+            },
             function (fromPy) {
                 console.log(fromPy.toString())
             })
@@ -228,9 +222,9 @@ app.post('/add', async (req, res) => {
 
 app.post('/delete', async (req, res) => {
     console.log('DELETE ITEM /');
-    id = req.body.clientID
+    clientID = req.body.clientID
     itemTitle = req.body.itemTitle
-    const client = clients.find(client => id == client.id)
+    const client = clients.find(client => clientID == client.id)
     // console.log(titles);
     // console.log(itemTitle);
     if (titles.find(title => title.title === itemTitle)) {
@@ -246,14 +240,16 @@ app.post('/delete', async (req, res) => {
 
 app.post('/download', async (req, res) => {
     console.log('DOWNLOAD ITEM /');
-    id = req.body.clientID
+    clientID = req.body.clientID
     itemTitle = req.body.itemTitle
-    const client = clients.find(client => id == client.id)
+    const client = clients.find(client => clientID == client.id)
+
     var bucketParams = {
         Bucket: BUCKET_NAME,
         Key: `${itemTitle}.csv`,
         Expires: 3000
     }
+
     const basePath = downloadsFolder()
     const fullPath = `${basePath}/${itemTitle}.csv`
     const url = await s3.getSignedUrlPromise('getObject', bucketParams).catch((err) => console.log(err))
@@ -276,8 +272,8 @@ app.post('/download', async (req, res) => {
 app.post('/get_data', async (req, res) => {
     // const key = req.body.title
     const keys = req.body.titleList
-    const id = req.body.clientID
-    const client = clients.find(client => id == client.id)
+    const clientID = req.body.clientID
+    const client = clients.find(client => clientID == client.id)
 
     let csvData = []
     try {
@@ -293,11 +289,13 @@ app.post('/get_data', async (req, res) => {
                 csvData: csvData
             }
         })
-        sendEvent(client, data)
+        writeEvent(client, data)
 
     } catch (e) {
         console.log('Error: ', e);
     }
+
+    res.end()
 
 })
 

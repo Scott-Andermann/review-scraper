@@ -17,7 +17,7 @@ const Graph = ({ data }) => {
     let y = []
     let key = []
     const parsedData = data.map(element => {
-        console.log(element.data);
+        // console.log(element.data);
         let subx = []
         let subSent = []
         let subStar = []

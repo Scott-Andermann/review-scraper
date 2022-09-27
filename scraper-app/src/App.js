@@ -5,12 +5,13 @@ import './App.css';
 let id
 
 function App() {
-  const [webPage, setWebPage] = useState('https://www.amazon.com/Sceptre-Monitor-Speakers-Machine-C249W-1920RN/dp/B09M2SQ3PJ');
+  const [webPage, setWebPage] = useState('');
   const [titles, setTitles] = useState([]);
   const [clientID, setClientID] = useState('');
   const [csvData, setCsvData] = useState([]);
   const [titleList, setTitleList] = useState([]);
   const [pageCount, setPageCount] = useState('10');
+  const [addDisabled, setAddDisabled] = useState(false);
   // titles data structure: 
   // [{title: String, complete: Bool}]
   const [listening, setListening] = useState(false);
@@ -42,6 +43,7 @@ function App() {
       if (response.data.type === 'titles'){
         // console.log(response.data)
         setTitles(response.data.titles);
+        setAddDisabled(false);
       }
       if (response.data.type === 'getFromCSV') {
         
@@ -83,6 +85,7 @@ function App() {
       headers: { "Content-type": "application/json; charset=UTF-8" }
     }
     try {
+      setAddDisabled(true)
       const response = await fetch('http://localhost:4000/add', requestOptions)
       
     } catch (e) {
@@ -97,10 +100,11 @@ function App() {
       body: JSON.stringify({clientID: clientID, itemTitle: title }),
       headers: { "Content-type": "application/json; charset=UTF-8" }
     }
-    console.log(titles);
     try {
       const response = await fetch('http://localhost:4000/delete', requestOptions)
+      console.log(response);
       setTitles(prev => prev.filter(element => element.title !== title))
+      setTitleList(prev => prev.filter(element => element !== title))
     } catch (e) {
       console.log('Error: ', e);
     }
@@ -154,7 +158,7 @@ function App() {
       <div className={listening ? 'status green': 'status red'}></div>
       <p>Enter URL of item: </p>
       <input value={webPage} onChange={(e) => setWebPage(e.target.value)}></input>
-      <button onClick={addItem}>Add Item</button>
+      <button onClick={addItem} disabled={addDisabled}>Add Item</button>
       <p>Enter number of pages to scrape (max 50)</p>
       <input type='number' value={pageCount} onChange={onChangePageCount}></input>
       {titles.length > 0 && <ul>
