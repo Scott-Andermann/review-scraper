@@ -19,18 +19,19 @@ Update to web-app
 ✔️ Add data to S3 for easy access  
 ✔️ Perform data analysis while scraping  
 - Add Word cloud  
+- Add SSE for automatic scraping
 
 - Refactor for code organization/readability  
+✔️ Convert to Flask server
 - Add tests  
   
 How to run:   
 1. Clone GH repository and open root folder  
 2. Set up server:  
-  1. Open /server and run 'npm install' and 'pip install -r requirements.txt'  
-  2. Create new S3 bucket,  and store credentials at ~/.aws/credentials  
-  3. Change BUCKET_NAME variable in 'server.js'  
-  4. Change BUCKET_NAME variable in 'amazon_scraper.py'  
-  5. Run server with 'npm start'  
+  1. Open /server and create virtual environment. python3 -m venv env  
+  2. Start virtual environment using 'env/Scripts/activate'  
+  3. Install python packages 'pip install -r requirements.txt'  
+  4. Start server with 'flask run'  
 3. Set up frontend:  
   1. Open /scraper-app and run 'npm install'  
   2. Run frontend with 'npm start'  

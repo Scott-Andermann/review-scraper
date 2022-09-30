@@ -3,8 +3,12 @@
 # dependencies
 */node_modules
 /node_modules
-*/.aws
+server/.aws
 /.pnp
+server/env
+server/__pycache__
+__pycache__
+*.pyc
 .pnp.js
 
 # testing

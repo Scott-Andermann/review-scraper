@@ -1,0 +1,2 @@
+FLASK_APP=flaskServer.py
+FLASK_DEBUG=True
