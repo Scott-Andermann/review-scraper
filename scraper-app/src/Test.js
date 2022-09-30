@@ -97,7 +97,8 @@ const Test = () => {
                 {Array.isArray(allData) && allData.length > 0 && allData.map(dataPoint => {
                     return (
                         <li key={dataPoint.title}>
-                            <p>{dataPoint.title.slice(10)}</p>
+                            {dataPoint.title.slice(10, 35)}...
+                            <a href={`http://www.amazon.com/dp/${dataPoint.id}`} rel='noreferrer' target='_blank'>Link</a>
                             {!dataPoint.complete && <button onClick={() => startScraping(dataPoint)}>Click to scrape</button>}
                             {!dataPoint.complete && <button onClick={() => removeItem(dataPoint.title)}>Click to remove</button>}
                             {dataPoint.complete && <button onClick={() => deleteItem(dataPoint.title)}>Click to delete</button>}
