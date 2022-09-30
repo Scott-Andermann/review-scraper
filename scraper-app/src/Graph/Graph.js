@@ -2,11 +2,7 @@ import React from "react";
 import Plot from 'react-plotly.js';
 import './Graph.css';
 
-const xaxis = {
-    tick0: 0,
-    dtick: 1,
-    ticklen: 6
-}
+
 const Graph = ({ data }) => {
     // const arr = [{x: [1,2,3,4],y: [1,2,3,4]},{x:[2,5,7,3], y:[1,2,3,4]}];
     console.log(data);

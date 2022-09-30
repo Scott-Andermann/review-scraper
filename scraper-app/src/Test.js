@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
+import Graph from "./Graph/Graph";
 import './App.css';
 
 const url = '/all_objects';
@@ -10,6 +11,7 @@ const Test = () => {
     const [webPage, setWebPage] = useState('');
     const [pageCount, setPageCount] = useState(5);
     const [selection, setSelection] = useState([]);
+    const [csvData, setCsvData] = useState([]);
 
     const getID = () => {
         try {
@@ -80,23 +82,46 @@ const Test = () => {
     }
 
     const downloadItem = async (title) => {
-    // need to connect with backend
+        // need to connect with backend
         const response = await axios.get('/download')
+    }
+
+    const changeCheck = (title) => {
+        if (!selection.includes(title))
+          setSelection(prev => [...prev, title])
+        if (selection.includes(title))
+          setSelection(prev => prev.filter(element => element !== title))
       }
+
+    const updateCharts = async () => {
+        const body = {
+            selection: selection
+        }
+
+        const response = await axios.post('/get_data', body)
+        // console.log(response.data);
+        setCsvData(response.data)
+    }
+
+    // console.log(csvData);
 
     useEffect(() => {
         getData();
     }, []);
 
     return (
-        <div>
+        <div className='App'>
+            <h1>Amazon Review Scraper</h1>
+            <h4>Enter URL of item:</h4>
             <input value={webPage} onChange={(e) => setWebPage(e.target.value)}></input>
             <button onClick={addItem}>Add item</button>
+            <h4>Enter number of pages to scrape (max 50)</h4>
             <input type='number' value={pageCount} onChange={onPageChange}></input>
             <ul>
                 {Array.isArray(allData) && allData.length > 0 && allData.map(dataPoint => {
                     return (
                         <li key={dataPoint.title}>
+                            <input type='checkbox' onChange={() => changeCheck(dataPoint.title)} disabled={!dataPoint.complete}></input>
                             {dataPoint.title.slice(10, 35)}...
                             <a href={`http://www.amazon.com/dp/${dataPoint.id}`} rel='noreferrer' target='_blank'>Link</a>
                             {!dataPoint.complete && <button onClick={() => startScraping(dataPoint)}>Click to scrape</button>}
@@ -107,6 +132,8 @@ const Test = () => {
                     )
                 })}
             </ul>
+            <button onClick={updateCharts}>Update Charts</button>
+            {csvData.length > 0 && <Graph data={csvData} />}
         </div>
     );
 }

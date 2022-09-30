@@ -1,7 +1,7 @@
-from cmath import log
-from flask import Flask, request
+from flask import Flask, request, jsonify, Response
 import boto3
 import json
+import pandas as pd
 from amazon_scraper import get_title, run_main
 
 api = Flask(__name__)
@@ -10,7 +10,7 @@ BUCKET_NAME = 'amazonreviewdata'
 all_objects = []
 
 for key in s3_client.list_objects(Bucket=BUCKET_NAME)['Contents']:
-    all_objects.append({"title": key['Key'][:-4], "complete": True, "id": key['Key'][0:10]})
+    all_objects.append({"title": key['Key'], "complete": True, "id": key['Key'][0:10]})
 
 @api.route('/profile')
 def my_profile():
@@ -61,6 +61,28 @@ def delete_object():
         s3_client.delete_object(Bucket=BUCKET_NAME, Key=f'{item_title}.csv')
         return 'success'
     return 'Error, invalid request'
+
+@api.route('/get_data', methods=['POST'])
+def get_data():
+    print('GET DATA /')
+    if request.method == 'POST':
+        data = json.loads(request.data)
+        csv_data = []
+        for key in data['selection']:
+            # json_buffer = StringIO()
+            # json_df = ''
+            df = pd.read_csv(f"s3://{BUCKET_NAME}/{key}")
+            # print(df)
+            # json_df = df.to_json()
+            # # print(json_buffer)
+            # print(json_df)
+            csv_data.append({"name": key, "data": json.loads(df.to_json(orient='records'))}) # this is a string
+        # print(csv_data)
+        # print(df.to_json(orient='records'))
+        resp = Response(response=json.dumps(csv_data), status=200, mimetype='application/json')
+        return resp
+    return 'Error: invalid input'
+
 
 @api.route('/download')
 def download_object():
