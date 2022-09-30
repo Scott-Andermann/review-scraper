@@ -1,188 +1,143 @@
-import React, { useState, useEffect } from 'react';
-import Graph from './Graph/Graph';
+import React, { useState, useEffect } from "react";
+import axios from 'axios';
+import Graph from "./Graph/Graph";
 import './App.css';
 
-let id
+const url = '/all_objects';
+const addUrl = '/add';
 
-function App() {
-  const [webPage, setWebPage] = useState('');
-  const [titles, setTitles] = useState([]);
-  const [clientID, setClientID] = useState('');
-  const [csvData, setCsvData] = useState([]);
-  const [titleList, setTitleList] = useState([]);
-  const [pageCount, setPageCount] = useState('10');
-  const [addDisabled, setAddDisabled] = useState(false);
-  // titles data structure: 
-  // [{title: String, complete: Bool}]
-  const [listening, setListening] = useState(false);
+const App = () => {
+    const [allData, setAllData] = useState(null);
+    const [webPage, setWebPage] = useState('');
+    const [pageCount, setPageCount] = useState(5);
+    const [selection, setSelection] = useState([]);
+    const [csvData, setCsvData] = useState([]);
 
-  useEffect(() => {
-    // open SSE connection
-    const events = new EventSource('http://localhost:4000/data');
-
-    events.onopen = () => {
-      console.log('SSE opened');
-      setListening(true)
+    const getID = () => {
+        try {
+            const urlArray = webPage.split('/');
+            const index = urlArray.findIndex(element => element === 'dp');
+            if (urlArray.includes('www.amazon.com')) {
+                if (urlArray[index + 1].length >= 10)
+                    return urlArray[index + 1].slice(0, 10)
+            }
+            return undefined
+        } catch (e) {
+            console.log('Error: ', e);
+            return undefined
+        }
     }
 
-    events.onmessage = (event) => {
-      const response = JSON.parse(event.data)
-
-      if (response.data.clientID) {
-        setClientID(response.data.clientID)
-      }
-      if (response.data.type === 'scrape') {
+    const getData = async () => {
+        const response = await axios.get(url)
         console.log(response.data);
-        setTitles(prev => prev.map(obj => {
-          if (obj.id === response.data.id) {
-            return { ...obj, complete: true };
-          }
+        setAllData(response.data.data)
+    }
 
-          return obj;
+    const addItem = async () => {
+        const id = getID();
+        const body = {
+            id: id
+        }
+        const response = await axios.post('/add', body)
+        console.log(response);
+        // add to all data but without scraped flag
+        setAllData(prev => [...prev, { title: id + response.data.title, id: id, complete: false }])
+    }
+
+    const onPageChange = (e) => {
+        if (e.target.value < 50) {
+            setPageCount(e.target.value)
+        }
+    }
+
+    const startScraping = async (dataPoint) => {
+        const body = {
+            id: dataPoint.id,
+            title: dataPoint.title,
+            pageCount: pageCount
+        }
+        const response = await axios.post('/scrape', body)
+        console.log(response);
+        setAllData(prev => prev.map(obj => {
+            if (obj.id === dataPoint.id) {
+                return { ...obj, complete: true };
+            }
+            return obj;
         }))
-      }
-      if (response.data.type === 'titles') {
-        // console.log(response.data)
-        setTitles(response.data.titles);
-        setAddDisabled(false);
-      }
-      if (response.data.type === 'getFromCSV') {
-
-        console.log(response.data);
-        setCsvData(response.data.csvData)
-      }
-      if (response.data.type === 'note') console.log(response.data.message);
-
-      // else console.log(response.data);
-    };
-
-    events.onerror = (e) => {
-      console.log('Error: ', e);
-    }
-    return () => {
-      events.close();
-      setListening(false)
     }
 
-  }, []);
-
-  const getID = () => {
-    try {
-      const urlArray = webPage.split('/');
-      const index = urlArray.findIndex(element => element === 'dp');
-      if (urlArray.includes('www.amazon.com')) {
-        if (urlArray[index + 1].length >= 10)
-          return urlArray[index + 1].slice(0, 10)
-      }
-      return undefined
-    } catch (e) {
-      console.log('Error: ', e);
-      return undefined
+    const removeItem = async (title) => {
+        setAllData(prev => prev.filter(element => element.title !== title))
     }
-  }
 
+    const deleteItem = async (title) => {
+        console.log('delete item ', title);
+        const body = {
+            itemTitle: title
+        }
+        const response = await axios.post('/delete', body)
+        console.log(response);
+        // need to remove from selection when deleted
+        setAllData(prev => prev.filter(element => element.title !== title))
+    }
 
-  const addItem = async () => {
-    const itemID = getID();
-    if (itemID) {
-      const requestOptions = {
-        method: "post",
-        body: JSON.stringify({ clientID: clientID, itemID: itemID, pageCount: pageCount }),
-        headers: { "Content-type": "application/json; charset=UTF-8" }
-      }
-      try {
-        setAddDisabled(true)
-        const response = await fetch('http://localhost:4000/add', requestOptions)
+    const downloadItem = async (title) => {
+        // need to connect with backend
+        const response = await axios.get('/download')
+    }
 
-      } catch (e) {
-        console.log('Error: ', e);
+    const changeCheck = (title) => {
+        if (!selection.includes(title))
+          setSelection(prev => [...prev, title])
+        if (selection.includes(title))
+          setSelection(prev => prev.filter(element => element !== title))
       }
 
-    }
-    else alert('Please enter valid Amazon.com url')
-  }
+    const updateCharts = async () => {
+        const body = {
+            selection: selection
+        }
 
-  const deleteItem = async (title) => {
-    console.log('delete this item: ', title);
-    const requestOptions = {
-      method: "post",
-      body: JSON.stringify({ clientID: clientID, itemTitle: title }),
-      headers: { "Content-type": "application/json; charset=UTF-8" }
-    }
-    try {
-      const response = await fetch('http://localhost:4000/delete', requestOptions)
-      console.log(response);
-      setTitles(prev => prev.filter(element => element.title !== title))
-      setTitleList(prev => prev.filter(element => element !== title))
-    } catch (e) {
-      console.log('Error: ', e);
-    }
-  }
-
-  const downloadItem = async (title) => {
-    const requestOptions = {
-      method: "post",
-      body: JSON.stringify({ clientID: clientID, itemTitle: title }),
-      headers: { "Content-type": "application/json; charset=UTF-8" }
-    }
-    console.log(titles);
-    try {
-      const response = await fetch('http://localhost:4000/download', requestOptions)
-    } catch (e) {
-      console.log('Error: ', e);
+        const response = await axios.post('/get_data', body)
+        // console.log(response.data);
+        setCsvData(response.data)
     }
 
-  }
+    // console.log(csvData);
 
-  const getData = async () => {
-    console.log(titleList);
-    const requestOptions = {
-      method: "post",
-      body: JSON.stringify({ clientID: clientID, titleList: titleList }),
-      headers: { "Content-type": "application/json; charset=UTF-8" }
-    }
-    try {
-      const response = await fetch('http://localhost:4000/get_data', requestOptions)
-    } catch (e) {
-      console.log('Error: ', e);
-    }
-  }
+    useEffect(() => {
+        getData();
+    }, []);
 
-  const onChangePageCount = (e) => {
-    if (e.target.value <= 50) {
-      setPageCount(e.target.value)
-    }
-  }
-
-  const changeCheck = (title) => {
-    if (!titleList.includes(title))
-      setTitleList(prev => [...prev, title])
-    if (titleList.includes(title))
-      setTitleList(prev => prev.filter(element => element !== title))
-  }
-
-  return (
-    <div className="App">
-      <h1>Amazon Review Scraper</h1>
-      <div className={listening ? 'status green' : 'status red'}></div>
-      <p>Enter URL of item: </p>
-      <input value={webPage} onChange={(e) => setWebPage(e.target.value)}></input>
-      <button onClick={addItem} disabled={addDisabled}>Add Item</button>
-      <p>Enter number of pages to scrape (max 50)</p>
-      <input type='number' value={pageCount} onChange={onChangePageCount}></input>
-      {titles.length > 0 && <ul>
-        {titles.map(title => <li key={title.title}>
-          <input type='checkbox' onChange={() => changeCheck(title.title)} disabled={!title.complete}></input>
-          {title.title.slice(10, 50)}... - <a href={`https://www.amazon.com/dp/${title.title.slice(0, 10)}`} target='_blank'>Link</a>
-          {title.complete && <button onClick={() => deleteItem(title.title)} disabled={!title.complete}>Delete</button>}
-          {title.complete && <button onClick={() => downloadItem(title.title)} disabled={!title.complete}>Download</button>}
-        </li>)}
-      </ul>}
-      {/* <p><a href={reviewPage} target='_blank'>See Reviews</a></p> */}
-      <button onClick={getData}>Update Chart</button>
-      {csvData.length > 0 && <Graph data={csvData} />}
-    </div>
-  );
+    return (
+        <div className='App'>
+            <h1>Amazon Review Scraper</h1>
+            <h4>Enter URL of item:</h4>
+            <input value={webPage} onChange={(e) => setWebPage(e.target.value)}></input>
+            <button onClick={addItem}>Add item</button>
+            <h4>Enter number of pages to scrape (max 50)</h4>
+            <input type='number' value={pageCount} onChange={onPageChange}></input>
+            <ul>
+                {Array.isArray(allData) && allData.length > 0 && allData.map(dataPoint => {
+                    return (
+                        <li key={dataPoint.title}>
+                            <input type='checkbox' onChange={() => changeCheck(dataPoint.title)} disabled={!dataPoint.complete}></input>
+                            {dataPoint.title.slice(10, 35)}...
+                            <a href={`http://www.amazon.com/dp/${dataPoint.id}`} rel='noreferrer' target='_blank'>Link</a>
+                            {!dataPoint.complete && <button onClick={() => startScraping(dataPoint)}>Click to scrape</button>}
+                            {!dataPoint.complete && <button onClick={() => removeItem(dataPoint.title)}>Click to remove</button>}
+                            {dataPoint.complete && <button onClick={() => deleteItem(dataPoint.title)}>Click to delete</button>}
+                            {dataPoint.complete && <button onClick={() => downloadItem(dataPoint.title)}>Download CSV</button>}
+                        </li>
+                    )
+                })}
+            </ul>
+            <button onClick={updateCharts}>Update Charts</button>
+            {csvData.length > 0 && <Graph data={csvData} />}
+        </div>
+    );
 }
+
 
 export default App;

@@ -36,6 +36,7 @@ def add_object():
         data = json.loads(request.data)
         id = data['id']
         title = get_title(1, id)
+        # remove extra spaces from title variable
         return {"title": title}
     return 'Error, invalid request'
 
@@ -54,11 +55,13 @@ def scrape():
 
 @api.route('/delete', methods=['POST'])
 def delete_object():
+    global all_objects
     print('DELETE OBJECT /')
     if request.method == 'POST':
         data = json.loads(request.data)
         item_title = data['itemTitle']
-        s3_client.delete_object(Bucket=BUCKET_NAME, Key=f'{item_title}.csv')
+        s3_client.delete_object(Bucket=BUCKET_NAME, Key=f'{item_title}')
+        all_objects = list(filter(lambda i: i['title'] != f'{item_title}.csv', all_objects))
         return 'success'
     return 'Error, invalid request'
 
