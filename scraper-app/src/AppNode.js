@@ -4,7 +4,7 @@ import './App.css';
 
 let id
 
-function App() {
+function AppNode() {
   const [webPage, setWebPage] = useState('');
   const [titles, setTitles] = useState([]);
   const [clientID, setClientID] = useState('');
@@ -17,7 +17,6 @@ function App() {
   const [listening, setListening] = useState(false);
 
   useEffect(() => {
-    // open SSE connection
     const events = new EventSource('http://localhost:4000/data');
 
     events.onopen = () => {
@@ -185,4 +184,4 @@ function App() {
   );
 }
 
-export default App;
+export default AppNode;

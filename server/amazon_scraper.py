@@ -83,7 +83,7 @@ def upload_to_s3(df, filename):
         Body=csv_buffer.getvalue())
 
 
-def run_main(arg):
+def run_main_node(arg):
 
     res = json.loads(arg)
 
@@ -103,6 +103,26 @@ def run_main(arg):
         all_reviews.append(data)
         pause = random.uniform(1, 5)
         # print(f'Pausing for {pause} seconds')
+        time.sleep(pause)
+
+    def flatten(l): return [item for sublist in l for item in sublist]
+    df = pd.DataFrame(flatten(all_reviews), columns=[
+                      'Title', 'Review', 'StarRating', 'Date'])
+    # df.to_csv(f'scraped-data/{title}.csv', index=False, encoding='utf-8')
+    df = sentiment(df)
+    # print(df)
+    upload_to_s3(df, title)
+    # print(f'Finished scraping {title}, {len(df.index)} reviews gathered')
+    # print({'title': title, 'numberReviews': len(df.index)})
+
+def run_main(item_no, pages, title):
+
+    for page in range(1, pages):
+        data = get_data(page, item_no)
+        if data == 'exit' or data == []:
+            break
+        all_reviews.append(data)
+        pause = random.uniform(1, 5)
         time.sleep(pause)
 
     def flatten(l): return [item for sublist in l for item in sublist]
