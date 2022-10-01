@@ -117,7 +117,7 @@ def run_main_node(arg):
 
 def run_main(item_no, pages, title):
 
-    for page in range(1, pages):
+    for page in range(1, int(pages)):
         data = get_data(page, item_no)
         if data == 'exit' or data == []:
             break

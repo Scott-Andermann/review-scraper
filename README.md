@@ -19,10 +19,11 @@ Update to web-app
 ✔️ Add data to S3 for easy access  
 ✔️ Perform data analysis while scraping  
 - Add Word cloud  
-- Add SSE for automatic scraping
-
+✔️ Add second request on 'Add Item' click to automatically scrape  
+- Add tag functionality
+  
 - Refactor for code organization/readability  
-✔️ Convert to Flask server
+✔️ Convert to Flask server  
 - Add tests  
   
 How to run:   

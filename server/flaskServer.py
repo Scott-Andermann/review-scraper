@@ -31,18 +31,24 @@ def get_all_objects():
 
 @api.route('/add', methods=['POST'])
 def add_object():
+    global all_objects
     print('ADD OBJECT /')
     if request.method == 'POST':
         data = json.loads(request.data)
         id = data['id']
         title = get_title(1, id)
         # remove extra spaces from title variable
+        while '  ' in title:
+            title = title.replace('  ', ' ')
+        # title = id + title + '.csv'
+        all_objects.append({"title": id + title + '.csv', "complete": False, "id": id})
         return {"title": title}
     return 'Error, invalid request'
 
 @api.route('/scrape', methods=['POST'])
 def scrape():
     print('SCRAPING WEBPAGE /')
+    global all_objects
     if request.method == 'POST':
         data = json.loads(request.data)
         id = data['id']
@@ -50,6 +56,8 @@ def scrape():
         title = data['title']
         print(f'Scraping {page_count} pages')
         run_main(id, page_count, title)
+        index = all_objects.index({"title": title + '.csv', "complete": False, "id": id})
+        all_objects[index] = {"title": title + '.csv', "complete": True, "id": id}
         return 'success'
     return 'Error, invalid request'
 

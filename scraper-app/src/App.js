@@ -4,7 +4,6 @@ import Graph from "./Graph/Graph";
 import './App.css';
 
 const url = '/all_objects';
-const addUrl = '/add';
 
 const App = () => {
     const [allData, setAllData] = useState(null);
@@ -42,7 +41,8 @@ const App = () => {
         const response = await axios.post('/add', body)
         console.log(response);
         // add to all data but without scraped flag
-        setAllData(prev => [...prev, { title: id + response.data.title, id: id, complete: false }])
+        setAllData(prev => [...prev, { title: id + response.data.title + '.csv', id: id, complete: false }])
+        startScraping({id: id, title: id + response.data.title})
     }
 
     const onPageChange = (e) => {
@@ -51,16 +51,17 @@ const App = () => {
         }
     }
 
-    const startScraping = async (dataPoint) => {
+    const startScraping = async ({id, title}) => {
         const body = {
-            id: dataPoint.id,
-            title: dataPoint.title,
+            id: id,
+            title: title,
             pageCount: pageCount
         }
         const response = await axios.post('/scrape', body)
         console.log(response);
+        // should I call getData() again after scraping is finished?  That way server controls then data list
         setAllData(prev => prev.map(obj => {
-            if (obj.id === dataPoint.id) {
+            if (obj.id === id) {
                 return { ...obj, complete: true };
             }
             return obj;
@@ -80,6 +81,7 @@ const App = () => {
         console.log(response);
         // need to remove from selection when deleted
         setAllData(prev => prev.filter(element => element.title !== title))
+        setSelection(prev => prev.filter(element => element !== title))
     }
 
     const downloadItem = async (title) => {
@@ -109,6 +111,10 @@ const App = () => {
     useEffect(() => {
         getData();
     }, []);
+
+    console.log('==============================')
+    console.log(selection)
+    console.log('==============================')
 
     return (
         <div className='App'>
