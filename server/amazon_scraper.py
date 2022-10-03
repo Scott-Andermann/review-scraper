@@ -9,6 +9,7 @@ from datetime import datetime
 from sentiment import sentiment
 import boto3
 import json
+from userLogin import upload_to_s3
 #page = 1
 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding": "gzip, deflate",
            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "DNT": "1", "Connection": "close", "Upgrade-Insecure-Requests": "1"}
@@ -73,14 +74,14 @@ def get_data(pages, item_no):
         return 'exit'
 
 
-def upload_to_s3(df, filename):
-    print('uploading')
-    BUCKET_NAME = 'amazonreviewdata'
-    csv_buffer = StringIO()
-    df.to_csv(csv_buffer)
-    s3_resource = boto3.resource('s3')
-    s3_resource.Object(BUCKET_NAME, f'{filename}.csv').put(
-        Body=csv_buffer.getvalue())
+# def upload_to_s3(df, filename):
+#     print('uploading')
+#     BUCKET_NAME = 'amazonreviewdata'
+#     csv_buffer = StringIO()
+#     df.to_csv(csv_buffer, index=False)
+#     s3_resource = boto3.resource('s3')
+#     s3_resource.Object(BUCKET_NAME, f'{filename}.csv').put(
+#         Body=csv_buffer.getvalue())
 
 
 def run_main_node(arg):
@@ -115,7 +116,7 @@ def run_main_node(arg):
     # print(f'Finished scraping {title}, {len(df.index)} reviews gathered')
     # print({'title': title, 'numberReviews': len(df.index)})
 
-def run_main(item_no, pages, title):
+def run_main(item_no, pages, title, directory):
 
     for page in range(1, int(pages)):
         data = get_data(page, item_no)
@@ -131,7 +132,7 @@ def run_main(item_no, pages, title):
     # df.to_csv(f'scraped-data/{title}.csv', index=False, encoding='utf-8')
     df = sentiment(df)
     # print(df)
-    upload_to_s3(df, title)
+    upload_to_s3(df, title, directory)
     # print(f'Finished scraping {title}, {len(df.index)} reviews gathered')
     # print({'title': title, 'numberReviews': len(df.index)})
 

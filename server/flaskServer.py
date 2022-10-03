@@ -2,15 +2,23 @@ from flask import Flask, request, jsonify, Response
 import boto3
 import json
 import pandas as pd
+from nanoid import generate
 from amazon_scraper import get_title, run_main
+import userLogin
 
 api = Flask(__name__)
 s3_client = boto3.client('s3')
+# create bucket with random string that is linked to username?
 BUCKET_NAME = 'amazonreviewdata'
+# all_objects = []
+users = {'Scott': 'password', 'Kelsey': 'Huck'}
 all_objects = []
 
-for key in s3_client.list_objects(Bucket=BUCKET_NAME)['Contents']:
-    all_objects.append({"title": key['Key'], "complete": True, "id": key['Key'][0:10]})
+def get_all_objects_in_bucket(bucket_name):
+    all_objects_in_bucket = []
+    for key in s3_client.list_objects(Bucket=BUCKET_NAME)['Contents']:
+        all_objects_in_bucket.append({"title": key['Key'], "complete": True, "id": key['Key'][0:10]})
+    return all_objects_in_bucket
 
 @api.route('/profile')
 def my_profile():
@@ -23,6 +31,10 @@ def my_profile():
 @api.route('/all_objects')
 def get_all_objects():
     # all_objects = []
+    args = request.args
+    bucket = args.get('bucket')
+    print(bucket)
+    all_objects = get_all_objects_in_bucket(bucket)
     response_body = {
         "type": "all_objects",
         "data": all_objects
@@ -51,11 +63,12 @@ def scrape():
     global all_objects
     if request.method == 'POST':
         data = json.loads(request.data)
+        directory = data['directory']
         id = data['id']
         page_count = data['pageCount']
         title = data['title']
         print(f'Scraping {page_count} pages')
-        run_main(id, page_count, title)
+        run_main(id, page_count, title, directory)
         index = all_objects.index({"title": title + '.csv', "complete": False, "id": id})
         all_objects[index] = {"title": title + '.csv', "complete": True, "id": id}
         return 'success'
@@ -94,10 +107,43 @@ def download_object():
 @api.route('/login', methods=['POST'])
 def login_user():
     print('LOGIN USER /')
+    global users
     if request.method == 'POST':
         data = json.loads(request.data)
         print(data)
         username = data['username']
         password = data['password']
-        print(username, ': ', password)
-    return {"token": 'test123'}
+        if userLogin.check_password(username, password) == True:
+            directory = userLogin.get_dir(username)
+            print('success')
+            return {'token': 'OK', 'directory': directory}
+        # userlist stored in S3 with passwords hashed - will need a password reset function too
+
+        # try:
+        #     # need to decode username and password before checking
+        #     if users[username] == password:
+        #         print('Bucket name for Scott')
+        #         # need to hash the BUCKET_NAME
+        #         return {"token": 'OK', 'BUCKET_NAME': 'amazonreviewdata'}
+        # except KeyError:
+        #     return {"token": 'Bad user/password'}        
+
+        # return {"token": 'Bad user/password'}
+
+@api.route('/add_user', methods=['POST'])
+def add_user():
+    print('ADD USER /')
+    # read users from external db
+    global users
+    # print(users)
+    if request.method == 'POST':
+        data=json.loads(request.data)
+        print(data)
+        users[data['username']] = data['password']
+        # create new s3 bucket
+        location = {'LocationConstraint': 'us-east-1'}
+        new_bucket = print(generate('1234567890abcdef', 30))
+        # s3_client.create_bucket(Bucket=new_bucket)
+        # save new user, password, and bucket name in .csv file?
+
+        return 'success'

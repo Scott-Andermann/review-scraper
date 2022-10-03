@@ -12,10 +12,11 @@ function App() {
 
     // const {token, removeToken, saveToken} = useToken();
 
-    if (!token) {
-        return <Login setToken={saveToken} />
-    }
-    return <Main token={token} removeToken={removeToken}/>
+    if (token === 'OK')
+        return <Main removeToken={removeToken}/>
+
+    return <Login saveToken={saveToken} />
+
 }
 
 export default App;

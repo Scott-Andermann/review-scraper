@@ -35,7 +35,9 @@ function App({token, removeToken}) {
     }
 
     const getData = async () => {
-        const response = await axios.get(url)
+        const directory = JSON.parse(localStorage.getItem('directory'))
+        console.log(directory);
+        const response = await axios.get(`${url}?directory=${directory}`)
         console.log(response.data);
         setAllData(response.data.data)
     }
@@ -59,10 +61,13 @@ function App({token, removeToken}) {
     }
 
     const startScraping = async ({id, title}) => {
+        const directoryString = localStorage.getItem('directory');
+        const directory = JSON.parse(directoryString);
         const body = {
             id: id,
             title: title,
-            pageCount: pageCount
+            pageCount: pageCount,
+            directory: directory
         }
         const response = await axios.post('/scrape', body)
         console.log(response);
