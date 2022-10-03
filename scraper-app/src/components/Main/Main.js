@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
-import Graph from "./Graph/Graph";
-import './App.css';
+import Graph from "../Graph/Graph";
+import Login from "../Login/Login";
+import Logout from "../Logout/Logout"
+import InputFields from '../InputFields/InputFields'
+import FileList from "../FileList/FileList";
+import './Main.css';
 
 const url = '/all_objects';
 
-const App = () => {
+function App({token, removeToken}) {
     const [allData, setAllData] = useState(null);
     const [webPage, setWebPage] = useState('');
     const [pageCount, setPageCount] = useState(5);
     const [selection, setSelection] = useState([]);
     const [csvData, setCsvData] = useState([]);
+    
+
+    // const {token, removeToken, saveToken} = useToken();
 
     const getID = () => {
         try {
@@ -79,7 +86,6 @@ const App = () => {
         }
         const response = await axios.post('/delete', body)
         console.log(response);
-        // need to remove from selection when deleted
         setAllData(prev => prev.filter(element => element.title !== title))
         setSelection(prev => prev.filter(element => element !== title))
     }
@@ -112,33 +118,19 @@ const App = () => {
         getData();
     }, []);
 
-    console.log('==============================')
-    console.log(selection)
-    console.log('==============================')
 
     return (
         <div className='App'>
             <h1>Amazon Review Scraper</h1>
+            <Logout removeToken={removeToken} />
             <h4>Enter URL of item:</h4>
-            <input value={webPage} onChange={(e) => setWebPage(e.target.value)}></input>
+            {/* Replace with Input component */}
+            <InputFields webPage={webPage} setWebPage={setWebPage} addItem={addItem} pageCount={pageCount} onPageChange={onPageChange} />
+            {/* <input value={webPage} onChange={(e) => setWebPage(e.target.value)}></input>
             <button onClick={addItem}>Add item</button>
             <h4>Enter number of pages to scrape (max 50)</h4>
-            <input type='number' value={pageCount} onChange={onPageChange}></input>
-            <ul>
-                {Array.isArray(allData) && allData.length > 0 && allData.map(dataPoint => {
-                    return (
-                        <li key={dataPoint.title}>
-                            <input type='checkbox' onChange={() => changeCheck(dataPoint.title)} disabled={!dataPoint.complete}></input>
-                            {dataPoint.title.slice(10, 35)}...
-                            <a href={`http://www.amazon.com/dp/${dataPoint.id}`} rel='noreferrer' target='_blank'>Link</a>
-                            {!dataPoint.complete && <button onClick={() => startScraping(dataPoint)}>Click to scrape</button>}
-                            {!dataPoint.complete && <button onClick={() => removeItem(dataPoint.title)}>Click to remove</button>}
-                            {dataPoint.complete && <button onClick={() => deleteItem(dataPoint.title)}>Click to delete</button>}
-                            {dataPoint.complete && <button onClick={() => downloadItem(dataPoint.title)}>Download CSV</button>}
-                        </li>
-                    )
-                })}
-            </ul>
+            <input type='number' value={pageCount} onChange={onPageChange}></input> */}
+            <FileList allData={allData} selection={selection} setSelection={setSelection} changeCheck={changeCheck} deleteItem={deleteItem} downloadItem={downloadItem} />
             <button onClick={updateCharts}>Update Charts</button>
             {csvData.length > 0 && <Graph data={csvData} />}
         </div>

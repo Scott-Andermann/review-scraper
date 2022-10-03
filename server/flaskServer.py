@@ -80,22 +80,24 @@ def get_data():
         data = json.loads(request.data)
         csv_data = []
         for key in data['selection']:
-            # json_buffer = StringIO()
-            # json_df = ''
             df = pd.read_csv(f"s3://{BUCKET_NAME}/{key}")
-            # print(df)
-            # json_df = df.to_json()
-            # # print(json_buffer)
-            # print(json_df)
             csv_data.append({"name": key, "data": json.loads(df.to_json(orient='records'))}) # this is a string
-        # print(csv_data)
-        # print(df.to_json(orient='records'))
         resp = Response(response=json.dumps(csv_data), status=200, mimetype='application/json')
         return resp
     return 'Error: invalid input'
-
 
 @api.route('/download')
 def download_object():
     print('DOWNLOAD OBJECT /')
     return 'success'
+
+@api.route('/login', methods=['POST'])
+def login_user():
+    print('LOGIN USER /')
+    if request.method == 'POST':
+        data = json.loads(request.data)
+        print(data)
+        username = data['username']
+        password = data['password']
+        print(username, ': ', password)
+    return {"token": 'test123'}
