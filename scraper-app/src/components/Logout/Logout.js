@@ -1,4 +1,6 @@
 import React from "react";
+import LogoutIcon from "../../Images/LogoutIcon";
+import './Logout.css';
 
 const Logout = ({removeToken}) => {
 
@@ -8,7 +10,11 @@ const Logout = ({removeToken}) => {
 
     return ( 
         <div>
-            <button onClick={handleClick}>Logout</button>
+            
+            <button className="logout-button" onClick={handleClick}>
+                <LogoutIcon />
+                <p>Logout</p>
+            </button>
         </div>
      );
 }

@@ -4,9 +4,34 @@
 }
 
 .valid {
-    border: 2px solid green;
+    border: 2px solid #255e26;
 }
 
 .invalid {
-    border: 2px solid red;
+    border: 2px solid #F24236;
+}
+
+.add-user-modal {
+    position: absolute;
+    background-color: #403233;
+    color: #FBFFFE;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 325px;
+    height: 180px;
+    padding: 1.5rem;
+    border-radius: 3px;
+    opacity: 0.8;
+}
+
+.return-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.return-link {
+    font-size: 0.8rem;
 }

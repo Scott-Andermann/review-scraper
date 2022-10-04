@@ -4,12 +4,13 @@ import './Graph.css';
 
 
 const Graph = ({ data }) => {
-    // const arr = [{x: [1,2,3,4],y: [1,2,3,4]},{x:[2,5,7,3], y:[1,2,3,4]}];
-    // console.log(data);
+    // acting funny since these are not state variables
+
     let sentimentTraces = []
     let avgSentimentTraces = []
     let starTraces = []
     let avgStarTraces = []
+
     data.map(element => {
         // console.log(element.data);
         let subx = []
@@ -37,7 +38,7 @@ const Graph = ({ data }) => {
             y: subAvgSentiment,
             name: element.name.slice(31, 51),
             type: 'scatter',
-            mode: 'markers',
+            mode: 'lines',
         })
         starTraces.push({
             x: subx,
@@ -51,16 +52,16 @@ const Graph = ({ data }) => {
             y: subAvgStars,
             name: element.name.slice(31, 51),
             type: 'scatter',
-            mode: 'markers',
+            mode: 'lines',
         })
-
+        
     })
 
     return (
         <div className='wrapper'>
             <Plot
                 className='one'
-                data={sentimentTraces}
+                data={[...sentimentTraces, ...avgSentimentTraces]}
                 layout={{ width: 600, height: 400, title: 'A fancy Sentiment plot' }}
             />
             <Plot

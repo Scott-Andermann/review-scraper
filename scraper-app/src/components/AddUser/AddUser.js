@@ -1,14 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {sha256} from 'js-sha256'
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import './AddUser.css';
+import '../Login/Login.css';
 
 const AddUser = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [password2, setPassword2] = useState('');
     const [valid, setValid] = useState(false);
+    const [created, setCreated] = useState(false);
+    const [blank, setBlank] = useState(true);
     
     const navigate = useNavigate();
 
@@ -30,6 +33,7 @@ const AddUser = () => {
     }
 
     const onChange = (e) => {
+        setBlank(false)
         if (e.target.name === 'password'){
             validatePasswords(e.target.value, password2)
             setPassword(e.target.value);
@@ -59,33 +63,53 @@ const AddUser = () => {
             const response = await axios.post('/add_user', body)
             if (response.data === 'success') {
                 //  redirect to '/'
-                navigate('/')
+                setCreated(true)
+                // alert('Account created, please log in')
+                // navigate('/')
             } else {
                 alert(response.data)
             }
         }
     }
 
+    useEffect(() => {
+        if (created) {
+            setTimeout(() => {
+                navigate('/')
+            }, 1500)
+        }
+    }, [created]);
+
     return (
         <div className='login-wrapper'>
-            <form onSubmit={onSubmit}>
-                <label>
-                    <p>Email:</p>
-                    <input className='login-input' value={email} onChange={(e) => setEmail(e.target.value)}></input>
-                </label>
-                <label>
-                    <p>Password:</p>
-                    <input className={`login-input ${valid ? 'valid' : 'invalid'}`} name='password' type='password' value={password} onChange={onChange}></input>
-                </label>
-                <label>
-                    <p>Enter Password Again:</p>
-                    <input className={`login-input ${valid ? 'valid' : 'invalid'}`} name='password2' type='password' value={password2} onChange={onChange}></input>
-                </label>
-                <div>
-                    <button type='submit'>Submit</button>
+            <div className='login-container'>
+                <div className="header-container">
+                    <h1>Create Account</h1>
                 </div>
-                {/* Email, password, 2nd password */}
-            </form>
+                <form className='login-form' onSubmit={onSubmit}>
+                    <div className='input-label'>
+                        <input className='input-field' value={email} onChange={(e) => setEmail(e.target.value)} placeholder='Your Email'></input>
+                    </div>
+                    <div className='input-label'>
+                        <input className={`input-field ${valid ? 'valid' : blank ? '' : 'invalid'}`} name='password' type='password' value={password} onChange={onChange} placeholder='Password'></input>
+                    </div>
+                    <div className='input-label'>
+                        <input className={`input-field ${valid ? 'valid' : blank ? '' : 'invalid'}`} name='password2' type='password' value={password2} onChange={onChange} placeholder='Password'></input>
+                    </div>
+                    <div className='submit-wrapper'>
+                        <button className='submit-button' type='submit'>Create Account</button>
+                    </div>
+                    <div className='return-wrapper'>
+                        <Link className='login-link return-link' to='/'>Already have an account? Log in</Link>
+                    </div>
+                </form>
+                {created ? 
+                <div className='add-user-modal'>
+                    <h3 style={{marginBottom: 'auto'}}>Account created successfully</h3>
+                    <p>Returning to login page</p>
+                    <Link className="login-link" to='/'>Click here if you are not automatically redirected</Link>
+                </div> : <></>}
+            </div>
         </div>
     );
 }

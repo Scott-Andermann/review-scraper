@@ -4,6 +4,7 @@ import Graph from "../Graph/Graph";
 import Logout from "../Logout/Logout"
 import InputFields from '../InputFields/InputFields'
 import FileList from "../FileList/FileList";
+import Header from "../Header/Header";
 import './Main.css';
 
 
@@ -54,11 +55,11 @@ function App({token, removeToken}) {
         startScraping({id: id, title: directory + id + response.data.title})
     }
 
-    const onPageChange = (e) => {
-        if (e.target.value < 50) {
-            setPageCount(e.target.value)
-        }
-    }
+    // const onPageChange = (e) => {
+    //     if (e.target.value < 50) {
+    //         setPageCount(e.target.value)
+    //     }
+    // }
 
     const startScraping = async ({id, title}) => {
         const body = {
@@ -125,15 +126,9 @@ function App({token, removeToken}) {
 
     return (
         <div className='App'>
-            <h1>Amazon Review Scraper</h1>
-            <Logout removeToken={removeToken} />
-            <h4>Enter URL of item:</h4>
+            <Header removeToken={removeToken} />
             {/* Replace with Input component */}
-            <InputFields webPage={webPage} setWebPage={setWebPage} addItem={addItem} pageCount={pageCount} onPageChange={onPageChange} />
-            {/* <input value={webPage} onChange={(e) => setWebPage(e.target.value)}></input>
-            <button onClick={addItem}>Add item</button>
-            <h4>Enter number of pages to scrape (max 50)</h4>
-            <input type='number' value={pageCount} onChange={onPageChange}></input> */}
+            <InputFields webPage={webPage} setWebPage={setWebPage} addItem={addItem} pageCount={pageCount} setPageCount={setPageCount} />
             <FileList allData={allData} selection={selection} setSelection={setSelection} changeCheck={changeCheck} deleteItem={deleteItem} downloadItem={downloadItem} />
             {csvData.length > 0 && <Graph data={csvData} />}
         </div>

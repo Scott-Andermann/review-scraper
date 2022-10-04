@@ -1,0 +1,20 @@
+.logout-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(63, 156, 149);
+    height: 2.5rem;
+    width: 6rem;
+    color: #FBFFFE;
+    border: none;
+    border-radius: 3px;
+}
+
+.logout-button:hover {
+    background-color: rgb(58, 148, 142);
+    transition: linear 0.15s;
+}
+
+.logout-button:active {
+    background-color: rgb(106, 192, 185);
+}

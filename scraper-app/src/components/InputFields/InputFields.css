@@ -1,0 +1,73 @@
+.input-wrapper {
+    max-width: 1210px;
+    height: 8rem;
+    margin: auto;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: rgb(199, 199, 199);
+    border-radius: 3px;
+}
+
+.url-field {
+    margin: 0;
+    /* margin-bottom: 1rem; */
+    font-size: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    width: 800px;
+    height: 2rem;
+    border-radius: 3px;
+    border: 1px solid gray;
+    /* background-color: #40323378; */
+}
+
+.url-field:focus {
+    border: 2px solid gray;
+    background-color: #FBFFFE;
+    color: black;
+    outline: none;
+}
+
+.select-wrapper {
+    position: relative;
+    height: 6rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.helper {
+    position: absolute;
+    top: 0;
+    left: .25rem;
+}
+
+.select-analysis {
+    font-size: 1rem;
+    height: 2rem;
+    border-radius: 3px;
+    width: 12rem;
+}
+
+.add-item-button {
+    background-color: rgb(63, 156, 149);
+    height: 2rem;
+    width: 6rem;
+    color: #FBFFFE;
+    border: none;
+    border-radius: 3px;
+}
+
+.add-item-button:hover {
+    background-color: rgb(58, 148, 142);
+    transition: linear 0.15s;
+}
+
+.add-item-button:active {
+    background-color: rgb(106, 192, 185);
+}

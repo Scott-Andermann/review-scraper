@@ -1,17 +1,15 @@
 * {
   box-sizing: border-box;
+  margin-block: 0;
 }
 
 ul {
   list-style: none;
 }
 
-p, h1 {
-  margin-block: 0;
-}
-
 .App {
   text-align: center;
+  background-color: #B57F504f;
 }
 
 .App-logo {
