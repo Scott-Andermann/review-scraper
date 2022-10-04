@@ -1,0 +1,12 @@
+.login-input {
+    border-radius: 5px;
+    border: 1px solid gray;
+}
+
+.valid {
+    border: 2px solid green;
+}
+
+.invalid {
+    border: 2px solid red;
+}

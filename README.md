@@ -10,8 +10,9 @@ Analysis Performed: Wordcloud
   Rating - individual reviews and average rating over time
 
 Update to web-app 
-- User login to access previously scraped products  
- - Create S3 bucket for each user  
+✔️ User login to access previously scraped products  
+ ✔️ Create S3 directory for each user  
+ - Add password recovery  
 ✔️ Input field to select product to scrape  
  ✔️ Add form validation  
  ✔️ Prevent scraping on page with existing data  
@@ -22,7 +23,7 @@ Update to web-app
 ✔️ Add second request on 'Add Item' click to automatically scrape  
 - Add tag functionality
   
-- Refactor for code organization/readability  
+✔️ Refactor for code organization/readability  
 ✔️ Convert to Flask server  
 - Add tests  
   
@@ -33,6 +34,7 @@ How to run:
   2. Start virtual environment using 'env/Scripts/activate'  
   3. Install python packages 'pip install -r requirements.txt'  
   4. Start server with 'flask run'  
+  5. Create new credentials file in location ~/.aws/credentials - https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html
 3. Set up frontend:  
   1. Open /scraper-app and run 'npm install'  
   2. Run frontend with 'npm start'  

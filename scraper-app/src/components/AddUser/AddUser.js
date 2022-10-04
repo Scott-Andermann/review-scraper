@@ -1,14 +1,44 @@
 import React, { useState } from "react";
 import axios from "axios";
 import {sha256} from 'js-sha256'
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import './AddUser.css';
 
 const AddUser = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [password2, setPassword2] = useState('');
+    const [valid, setValid] = useState(false);
     
     const navigate = useNavigate();
+
+    const validatePasswords = (pw, pw2) => {
+        if (pw === pw2) {
+            if (pw.length >= 6) {
+                setValid(true)
+                return true
+            } else {
+                // alert('Please enter a password of at least 6 characters');
+                setValid(false)
+                return false;
+            }
+        } else {
+            // alert('Passwords do not match');
+            setValid(false)
+            return false;
+        }
+    }
+
+    const onChange = (e) => {
+        if (e.target.name === 'password'){
+            validatePasswords(e.target.value, password2)
+            setPassword(e.target.value);
+        }
+        else {
+            validatePasswords(password, e.target.value);
+            setPassword2(e.target.value);
+        }
+    }
 
     const onSubmit = async (e) => {
         e.preventDefault();
@@ -20,22 +50,10 @@ const AddUser = () => {
             alert("You have entered an invalid email address!")
             return (false)
         }
-
-        const validatePasswords = () => {
-            if (password === password2) {
-                if (password.length >= 6) {
-                    return true
-                } else {
-                    alert('Please enter a password of at least 6 characters');
-                }
-            } else {
-                alert('Passwords do not match')
-            }
-        }
         
-        if (validatePasswords() && validateEmail(email)) {
+        if (validatePasswords(password, password2) && validateEmail(email)) {
             const body = {
-                username: email,
+                username: email.toLowerCase(),
                 password: sha256(password)
             }
             const response = await axios.post('/add_user', body)
@@ -53,15 +71,15 @@ const AddUser = () => {
             <form onSubmit={onSubmit}>
                 <label>
                     <p>Email:</p>
-                    <input value={email} onChange={(e) => setEmail(e.target.value)}></input>
+                    <input className='login-input' value={email} onChange={(e) => setEmail(e.target.value)}></input>
                 </label>
                 <label>
                     <p>Password:</p>
-                    <input value={password} onChange={(e) => setPassword(e.target.value)}></input>
+                    <input className={`login-input ${valid ? 'valid' : 'invalid'}`} name='password' type='password' value={password} onChange={onChange}></input>
                 </label>
                 <label>
                     <p>Enter Password Again:</p>
-                    <input value={password2} onChange={(e) => setPassword2(e.target.value)}></input>
+                    <input className={`login-input ${valid ? 'valid' : 'invalid'}`} name='password2' type='password' value={password2} onChange={onChange}></input>
                 </label>
                 <div>
                     <button type='submit'>Submit</button>

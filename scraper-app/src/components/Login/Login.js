@@ -34,13 +34,14 @@ const Login = ({saveToken}) => {
                 </label>
                 <label>
                     <p>Password</p>
-                    <input type='text' value={password} onChange={(e) => setPassword(e.target.value)}/>
+                    <input type='password' value={password} onChange={(e) => setPassword(e.target.value)}/>
                 </label>
                 <div>
                     <button type='submit'>Submit</button>
                 </div>
             </form>
             <Link to='/create_account'>Create new account</Link>
+            <Link to='/account_recovery'>Forgot password?</Link>
         </div>
      );
 }

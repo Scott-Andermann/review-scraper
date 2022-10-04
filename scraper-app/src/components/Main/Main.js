@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import Graph from "../Graph/Graph";
-import Login from "../Login/Login";
 import Logout from "../Logout/Logout"
 import InputFields from '../InputFields/InputFields'
 import FileList from "../FileList/FileList";
@@ -79,10 +78,6 @@ function App({token, removeToken}) {
         }))
     }
 
-    const removeItem = async (title) => {
-        setAllData(prev => prev.filter(element => element.title !== title))
-    }
-
     const deleteItem = async (title) => {
         console.log('delete item ', title);
         const body = {
@@ -97,6 +92,7 @@ function App({token, removeToken}) {
     const downloadItem = async (title) => {
         // need to connect with backend
         const response = await axios.get('/download')
+        console.log(response);
     }
 
     const changeCheck = (title) => {

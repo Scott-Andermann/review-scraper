@@ -5,14 +5,12 @@ import './Graph.css';
 
 const Graph = ({ data }) => {
     // const arr = [{x: [1,2,3,4],y: [1,2,3,4]},{x:[2,5,7,3], y:[1,2,3,4]}];
-    console.log(data);
+    // console.log(data);
     let sentimentTraces = []
     let avgSentimentTraces = []
     let starTraces = []
     let avgStarTraces = []
-    let y = []
-    let key = []
-    const parsedData = data.map(element => {
+    data.map(element => {
         // console.log(element.data);
         let subx = []
         let subSent = []
