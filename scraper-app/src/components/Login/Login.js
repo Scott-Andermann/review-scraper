@@ -13,6 +13,7 @@ const loginUser = async (credentials) => {
 }
 
 const Login = ({saveToken}) => {
+    // scottandermann@gmail.com / 123123
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
@@ -27,21 +28,28 @@ const Login = ({saveToken}) => {
 
     return ( 
         <div className="login-wrapper">
-            <form onSubmit={handleSubmit}>
-                <label>
-                    <p>Email</p>
-                    <input type='text' value={username} onChange={(e) => setUsername(e.target.value)}/>
-                </label>
-                <label>
-                    <p>Password</p>
-                    <input type='password' value={password} onChange={(e) => setPassword(e.target.value)}/>
-                </label>
-                <div>
-                    <button type='submit'>Submit</button>
+            <div className="login-container">
+                <div className='header-container'>
+                    <h1>Log in</h1>
                 </div>
-            </form>
-            <Link to='/create_account'>Create new account</Link>
-            <Link to='/account_recovery'>Forgot password?</Link>
+                <form className='login-form' onSubmit={handleSubmit}>
+                    <div className='input-label'>
+                        <input className='input-field' type='text' value={username} onChange={(e) => setUsername(e.target.value)} placeholder='Your Email' />
+                    </div>
+                    <div className='input-label'>
+                        <input className='input-field' type='password' value={password} onChange={(e) => setPassword(e.target.value)} placeholder='Password' />
+                    </div>
+
+                    <div className='submit-wrapper'>
+                        <button className='submit-button' type='submit'>Log In</button>
+                    </div>
+                </form>
+                <div className="alt-actions">
+                    <Link className='login-link' to='/create_account'>Create new account</Link>
+                    <Link className='login-link' to='/account_recovery'>Forgot password?</Link>
+
+                </div>
+            </div>
         </div>
      );
 }

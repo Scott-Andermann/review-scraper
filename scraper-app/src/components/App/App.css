@@ -1,5 +1,13 @@
+* {
+  box-sizing: border-box;
+}
+
 ul {
   list-style: none;
+}
+
+p, h1 {
+  margin-block: 0;
 }
 
 .App {

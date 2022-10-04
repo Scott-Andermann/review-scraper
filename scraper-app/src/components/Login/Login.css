@@ -1,5 +1,113 @@
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    width: 100%;
+    color: white;
+    background-color: #403233;
+    border-radius: 3px 3px 0 0;
+}
+
 .login-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100vw;
+    height: 100vh;
+    margin: auto;
+    background-color: #B57F504f;
+}
+
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+    margin-top: 15rem;
+    width: 350px;
+    background-color: #40323378;
+    padding-bottom: 50px;
+    border-radius: 3px;
+}
+
+.login-form {
+    padding: 50px;
+    padding-bottom: 0px;
+}
+
+.input-label {
+    margin: auto;
+}
+
+.input-field {
+    margin: auto;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    width: 250px;
+    height: 2rem;
+    border-radius: 3px;
+    border: 1px solid gray;
+    background-color: #40323378;
+    color: #FBFFFE;
+}
+
+.input-field::placeholder {
+    color: #FBFFFE;
+    opacity: .65;
+}
+
+.input-field:focus {
+    border: 2px solid gray;
+    background-color: #FBFFFE;
+    color: black;
+    outline: none;
+}
+
+.submit-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
+    margin-bottom: 2rem;
+}
+
+.submit-button {
+    width: 250px;
+    height: 2rem;
+    background-color: rgb(63, 156, 149);
+    border: 1px solid rgb(63, 156, 149);
+    border-radius: 3px;
+    color: white;
+    transition: linear 0.15s;
+}
+
+.submit-button:hover {
+    background-color: rgb(58, 148, 142);
+}
+
+.submit-button:active {
+    background-color: rgb(106, 192, 185);
+}
+
+.alt-actions {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 300px;
+    border-top: 1px solid gray;
+    padding-top: 2rem;
+}
+
+.login-link {
+    color: #FBFFFE;
+    text-decoration: none;
+}
+
+.login-link:hover {
+    text-decoration: underline;
 }

@@ -118,6 +118,10 @@ function App({token, removeToken}) {
         initializeData();
     }, []);
 
+    useEffect(() => {
+        updateCharts()
+    }, [selection]);
+
 
     return (
         <div className='App'>
@@ -131,7 +135,6 @@ function App({token, removeToken}) {
             <h4>Enter number of pages to scrape (max 50)</h4>
             <input type='number' value={pageCount} onChange={onPageChange}></input> */}
             <FileList allData={allData} selection={selection} setSelection={setSelection} changeCheck={changeCheck} deleteItem={deleteItem} downloadItem={downloadItem} />
-            <button onClick={updateCharts}>Update Charts</button>
             {csvData.length > 0 && <Graph data={csvData} />}
         </div>
     );
