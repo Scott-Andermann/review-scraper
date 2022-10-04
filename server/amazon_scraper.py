@@ -4,10 +4,8 @@ import time
 from bs4 import BeautifulSoup
 import random
 import requests
-from io import StringIO
 from datetime import datetime
 from sentiment import sentiment
-import boto3
 import json
 from userLogin import upload_to_s3
 #page = 1
@@ -116,7 +114,7 @@ def run_main_node(arg):
     # print(f'Finished scraping {title}, {len(df.index)} reviews gathered')
     # print({'title': title, 'numberReviews': len(df.index)})
 
-def run_main(item_no, pages, title, directory):
+def run_main(item_no, pages, title):
 
     for page in range(1, int(pages)):
         data = get_data(page, item_no)
@@ -132,7 +130,7 @@ def run_main(item_no, pages, title, directory):
     # df.to_csv(f'scraped-data/{title}.csv', index=False, encoding='utf-8')
     df = sentiment(df)
     # print(df)
-    upload_to_s3(df, title, directory)
+    upload_to_s3(df, title)
     # print(f'Finished scraping {title}, {len(df.index)} reviews gathered')
     # print({'title': title, 'numberReviews': len(df.index)})
 

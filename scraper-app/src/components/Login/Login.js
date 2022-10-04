@@ -1,26 +1,26 @@
 import React, {useState} from "react";
 import { Link } from "react-router-dom";
-import {sha256} from 'js-sha256'
+import {sha256} from 'js-sha256';
 import './Login.css';
 
 const url = '/login'
 
 const loginUser = async (credentials) => {
-    console.log(credentials);
+    // console.log(credentials);
     const response = await fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(credentials)})
     const data = await response.json()
     return data
 }
 
 const Login = ({saveToken}) => {
-    const [username, setUsername] = useState('Scott@blah.com');
-    const [password, setPassword] = useState('password');
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         // need to hash the username and password before sending to protect users
         const token = await loginUser({
-            username: sha256(username), password: sha256(password)
+            username: username, password: sha256(password)
         })
         saveToken(token)
     }

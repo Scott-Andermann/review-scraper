@@ -29,7 +29,7 @@ const Graph = ({ data }) => {
         sentimentTraces.push({
             x: subx,
             y: subSent,
-            name: element.name.slice(10, 30),
+            name: element.name.slice(31, 51),
             type: 'scatter',
             mode: 'markers',
             // marker: { color: 'red' }
@@ -37,21 +37,21 @@ const Graph = ({ data }) => {
         avgSentimentTraces.push({
             x: subx,
             y: subAvgSentiment,
-            name: element.name.slice(10, 30),
+            name: element.name.slice(31, 51),
             type: 'scatter',
             mode: 'markers',
         })
         starTraces.push({
             x: subx,
             y: subStar,
-            name: element.name.slice(10, 30),
+            name: element.name.slice(31, 51),
             type: 'scatter',
             mode: 'markers',
         })
         avgStarTraces.push({
             x: subx,
             y: subAvgStars,
-            name: element.name.slice(10, 30),
+            name: element.name.slice(31, 51),
             type: 'scatter',
             mode: 'markers',
         })

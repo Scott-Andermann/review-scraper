@@ -7,7 +7,7 @@ import InputFields from '../InputFields/InputFields'
 import FileList from "../FileList/FileList";
 import './Main.css';
 
-const url = '/all_objects';
+
 
 function App({token, removeToken}) {
     const [allData, setAllData] = useState(null);
@@ -34,24 +34,25 @@ function App({token, removeToken}) {
         }
     }
 
-    const getData = async () => {
+    const initializeData = async () => {
         const directory = JSON.parse(localStorage.getItem('directory'))
-        console.log(directory);
+        const url = '/all_objects';
         const response = await axios.get(`${url}?directory=${directory}`)
-        console.log(response.data);
+        // console.log(response.data);
         setAllData(response.data.data)
     }
 
     const addItem = async () => {
         const id = getID();
+        const directory = JSON.parse(localStorage.getItem('directory'))
         const body = {
-            id: id
+            id: id,
         }
         const response = await axios.post('/add', body)
         console.log(response);
         // add to all data but without scraped flag
-        setAllData(prev => [...prev, { title: id + response.data.title + '.csv', id: id, complete: false }])
-        startScraping({id: id, title: id + response.data.title})
+        setAllData(prev => [...prev, { title: directory + id + response.data.title + '.csv', id: id, complete: false }])
+        startScraping({id: id, title: directory + id + response.data.title})
     }
 
     const onPageChange = (e) => {
@@ -61,17 +62,15 @@ function App({token, removeToken}) {
     }
 
     const startScraping = async ({id, title}) => {
-        const directoryString = localStorage.getItem('directory');
-        const directory = JSON.parse(directoryString);
         const body = {
             id: id,
             title: title,
             pageCount: pageCount,
-            directory: directory
+            // directory: JSON.parse(localStorage.getItem('directory'))
         }
         const response = await axios.post('/scrape', body)
         console.log(response);
-        // should I call getData() again after scraping is finished?  That way server controls then data list
+        // should I call initializeData() again after scraping is finished?  That way server controls then data list
         setAllData(prev => prev.map(obj => {
             if (obj.id === id) {
                 return { ...obj, complete: true };
@@ -120,7 +119,7 @@ function App({token, removeToken}) {
     // console.log(csvData);
 
     useEffect(() => {
-        getData();
+        initializeData();
     }, []);
 
 
