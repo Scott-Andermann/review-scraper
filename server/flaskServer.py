@@ -78,7 +78,7 @@ def scrape():
         item = [id, src, title + '.csv', num, True]
         add_to_index(item, item[2][0:21])
         # update index file
-        return 'success'
+        return {"status": 'success', "num": num}
     return 'Error, invalid request'
 
 @api.route('/delete', methods=['POST'])

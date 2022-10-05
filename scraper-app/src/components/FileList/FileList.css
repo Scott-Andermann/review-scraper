@@ -9,7 +9,7 @@
     border-collapse: separate;
     border-spacing: 0;
     border-bottom: 2px solid rgb(63, 156, 149);
-    max-width: 400px;
+    width: 450px;
     margin: 25px 0;
     font-size: 0.9rem;
     box-shadow: 0 0 20px rgba(0,0,0, 0.15);

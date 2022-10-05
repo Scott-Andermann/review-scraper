@@ -1,10 +1,12 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import Plot from 'react-plotly.js';
 import './Graph.css';
 
 
 const Graph = ({ data }) => {
     // acting funny since these are not state variables
+
+    const [traces, setTraces] = useState([]);
 
     let sentimentTraces = []
     let avgSentimentTraces = []
@@ -53,18 +55,22 @@ const Graph = ({ data }) => {
             name: element.name.slice(31, 51),
             type: 'scatter',
             mode: 'lines',
-        })
-        
+        })  
     })
 
+
     return (
-        <div className='wrapper'>
+        <div className='graph-wrapper'>
+            <button>Sentiment</button>
+            <button>Average Sentiment</button>
+            <button>Rating</button>
+            <button>Average Rating</button>
             <Plot
                 className='one'
                 data={sentimentTraces}
                 layout={{ width: 600, height: 400, title: 'A fancy Sentiment plot', yaxis: {range: [-1, 1]} }}
             />
-            <Plot
+            {/* <Plot
             className='two'
                 data={starTraces}
                 layout={{ width: 600, height: 400, title: 'A fancy Star Rating plot', yaxis: {range: [0.25, 5.25]} }}
@@ -78,7 +84,7 @@ const Graph = ({ data }) => {
             className='four'
                 data={avgStarTraces}
                 layout={{ width: 600, height: 400, title: 'Average Star Rating plot', yaxis: {range: [0.25, 5.25]}}}
-            />
+            /> */}
         </div>
     );
 }

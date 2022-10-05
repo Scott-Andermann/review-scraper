@@ -1,9 +1,9 @@
-.wrapper {
-    display: grid;
+.graph-wrapper {
+    /* display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
-    grid-auto-rows: minmax(100px, auto);
-    max-width: 1210px;
+    grid-auto-rows: minmax(100px, auto); */
+    max-width: 800px;
     margin: auto
 }
 

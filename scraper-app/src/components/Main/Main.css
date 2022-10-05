@@ -4,6 +4,7 @@ ul {
 
 .App {
   text-align: center;
+  min-height: 100vh;
 }
 
 .green {
@@ -18,4 +19,6 @@ ul {
   max-width: 1210px;
   display: grid;
   margin: auto;
+  grid-template-columns: 450px auto;
+  gap: 20px;
 }

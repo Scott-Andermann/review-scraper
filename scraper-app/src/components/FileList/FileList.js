@@ -7,6 +7,8 @@ const FileList = ({ allData, changeCheck, deleteItem, downloadItem }) => {
         console.log('add all titles to analysis');
     }
 
+    console.log(allData);
+
     return (
             <table className="styled-table">
                 <thead>
@@ -15,7 +17,7 @@ const FileList = ({ allData, changeCheck, deleteItem, downloadItem }) => {
                     </ th>
                     <th></ th>
                     <th>Item</ th>
-                    <th>Amazon Page</ th>
+                    <th># of Records</ th>
                     <th>Action</ th>
                 </thead>
                 <tbody>
@@ -32,12 +34,12 @@ const FileList = ({ allData, changeCheck, deleteItem, downloadItem }) => {
                                         </div>}
                                 </td>
                                 <td>
-                                    <p>
+                                <a href={`http://www.amazon.com/dp/${dataPoint.id}`} rel='noopener noreferrer' target='_blank'>
                                         {dataPoint.title.slice(31, 55)}...
-                                    </p>
+                                    </a>
                                 </td>
                                 <td>
-                                    <a href={`http://www.amazon.com/dp/${dataPoint.id}`} rel='noopener noreferrer' target='_blank'>Link</a>
+                                    <p>{dataPoint.num}</p>
                                 </td>
                                 <td>
                                     {dataPoint.complete && <button onClick={() => deleteItem(dataPoint.title)}>Delete</button>}
