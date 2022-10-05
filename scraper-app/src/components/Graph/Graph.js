@@ -62,7 +62,7 @@ const Graph = ({ data }) => {
             <Plot
                 className='one'
                 data={sentimentTraces}
-                layout={{ width: 600, height: 400, title: 'A fancy Sentiment plot' }}
+                layout={{ width: 600, height: 400, title: 'A fancy Sentiment plot', yaxis: {range: [-1, 1]} }}
             />
             <Plot
             className='two'
@@ -72,7 +72,7 @@ const Graph = ({ data }) => {
             <Plot
             className='three'
                 data={avgSentimentTraces}
-                layout={{ width: 600, height: 400, title: 'Average Sentiment Plot' }}
+                layout={{ width: 600, height: 400, title: 'Average Sentiment Plot', yaxis: {range: [-1, 1]} }}
             />
             <Plot
             className='four'

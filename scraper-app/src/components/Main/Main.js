@@ -130,8 +130,10 @@ function App({token, removeToken}) {
             <Header removeToken={removeToken} />
             {/* Replace with Input component */}
             <InputFields webPage={webPage} setWebPage={setWebPage} addItem={addItem} pageCount={pageCount} setPageCount={setPageCount} />
-            <FileList allData={allData} selection={selection} setSelection={setSelection} changeCheck={changeCheck} deleteItem={deleteItem} downloadItem={downloadItem} />
-            {csvData.length > 0 && <Graph data={csvData} />}
+            <div className='data-wrapper'>
+                <FileList allData={allData} selection={selection} setSelection={setSelection} changeCheck={changeCheck} deleteItem={deleteItem} downloadItem={downloadItem} />
+                {csvData.length > 0 && <Graph data={csvData} />}
+            </div>
         </div>
     );
 }

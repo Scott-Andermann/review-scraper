@@ -88,4 +88,5 @@ if __name__ == "__main__":
     # add_user([email, password])
     # check_password([email, password])
     email = 'scott@gmail.com'
-    delete_user(email)
+    print(get_dir(email))
+    
