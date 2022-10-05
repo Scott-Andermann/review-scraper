@@ -32,6 +32,10 @@ def add_user(user):
     if user_info.empty:
         directory_id = generate('1234567890abcdef', 20) + '/'
         s3_client.put_object(Bucket=BUCKET_NAME, Body=b'', Key=f'{directory_id}')
+        # create index file for image link storage
+        index_df = pd.DataFrame(columns=['id', 'src', 'title', 'num', 'complete'])
+        upload_to_s3(index_df, 'index', directory_id)
+        # add user data to UserInfo file
         user.append(directory_id)
         df.loc[len(df.index)] = user
         upload_to_s3(df, 'UserInfo')
@@ -64,13 +68,24 @@ def get_dir(email):
     global BUCKET_NAME
     df = pd.read_csv(f"s3://{BUCKET_NAME}/UserInfo.csv")
     return df.loc[df['email'] == email, 'directory'].values[0]
+
+def delete_user(email):
+    global BUCKET_NAME
+    df = pd.read_csv(f"s3://{BUCKET_NAME}/UserInfo.csv")
+    df = df.loc[df['email'] != email]
+    upload_to_s3(df, 'UserInfo')
+
+    # print(df)
+
     
 if __name__ == "__main__":
-    email_string = 'Scott@blah.com'
-    password_string = 'password'
+    # email_string = 'Scott@blah.com'
+    # password_string = 'password'
 
-    email = hashlib.sha256(email_string.encode('utf-8')).hexdigest()
-    password = hashlib.sha256(password_string.encode('utf-8')).hexdigest()
+    # email = hashlib.sha256(email_string.encode('utf-8')).hexdigest()
+    # password = hashlib.sha256(password_string.encode('utf-8')).hexdigest()
 
-    add_user([email, password])
-    check_password([email, password])
+    # add_user([email, password])
+    # check_password([email, password])
+    email = 'scott@gmail.com'
+    delete_user(email)

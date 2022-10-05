@@ -8,6 +8,7 @@ const FileList = ({allData, changeCheck, deleteItem, downloadItem}) => {
             return (
                 <li key={dataPoint.title}>
                     <input type='checkbox' onChange={() => changeCheck(dataPoint.title)} disabled={!dataPoint.complete}></input>
+                    {dataPoint.src && <img src={dataPoint.src} alt={dataPoint.title.slice(31, 51) + '... image'} />}
                     {dataPoint.title.slice(31, 55)}...
                     <a href={`http://www.amazon.com/dp/${dataPoint.id}`} rel='noopener noreferrer' target='_blank'>Link</a>
                     {dataPoint.complete && <button onClick={() => deleteItem(dataPoint.title)}>Click to delete</button>}

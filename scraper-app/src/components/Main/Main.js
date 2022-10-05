@@ -51,8 +51,8 @@ function App({token, removeToken}) {
         const response = await axios.post('/add', body)
         console.log(response);
         // add to all data but without scraped flag
-        setAllData(prev => [...prev, { title: directory + id + response.data.title + '.csv', id: id, complete: false }])
-        startScraping({id: id, title: directory + id + response.data.title})
+        setAllData(prev => [...prev, { title: directory + id + response.data.title + '.csv', id: id, complete: false, src: response.data.src}])
+        startScraping({id: id, title: directory + id + response.data.title, src: response.data.src})
     }
 
     // const onPageChange = (e) => {
@@ -61,11 +61,12 @@ function App({token, removeToken}) {
     //     }
     // }
 
-    const startScraping = async ({id, title}) => {
+    const startScraping = async ({id, title, src}) => {
         const body = {
             id: id,
             title: title,
             pageCount: pageCount,
+            src: src
             // directory: JSON.parse(localStorage.getItem('directory'))
         }
         const response = await axios.post('/scrape', body)

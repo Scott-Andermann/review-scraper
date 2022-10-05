@@ -70,6 +70,17 @@ def get_data(pages, item_no):
         print('ERROR: ' + e)
         return 'exit'
 
+def get_img_src(item_no):
+    r = requests.get(f'http://www.amazon.com/dp/{item_no}', headers=headers)
+
+    content = r.content
+    soup = BeautifulSoup(content, features='lxml')
+
+    try:
+        element = soup.find('img', id='landingImage')
+        return element['src']
+    except AttributeError as e:
+        print('Error: ', e)
 
 # def upload_to_s3(df, filename):
 #     print('uploading')
@@ -82,7 +93,7 @@ def get_data(pages, item_no):
 
 
 def run_main_node(arg):
-
+    all_reviews = []
     res = json.loads(arg)
 
     pages = int(res['pageCount'])
@@ -122,7 +133,6 @@ def run_main(item_no, pages, title):
         all_reviews.append(data)
         pause = random.uniform(1, 5)
         time.sleep(pause)
-
     def flatten(l): return [item for sublist in l for item in sublist]
     df = pd.DataFrame(flatten(all_reviews), columns=[
                       'Title', 'Review', 'StarRating', 'Date'])
@@ -130,8 +140,12 @@ def run_main(item_no, pages, title):
     df = sentiment(df)
     # print(df)
     upload_to_s3(df, title)
+    return len(df.index)
     # print(f'Finished scraping {title}, {len(df.index)} reviews gathered')
     # print({'title': title, 'numberReviews': len(df.index)})
 
 
 # run_main('B08VF6ZVMH', '10')
+
+if __name__ == "__main__":
+    get_img_src('B079JLY5M5')
