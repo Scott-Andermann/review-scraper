@@ -4,22 +4,56 @@
     gap: 10px;
     grid-auto-rows: minmax(100px, auto); */
     max-width: 800px;
-    margin: auto
+    margin: auto;
+    margin-top: 0;
+    margin-left: 0;
 }
 
-.one {
-    grid-column: 1;
-    grid-row: 1
+.plot-button-wrapper {
+    display: flex;
+    justify-content: flex-start;
+    height: 64px;
 }
-.two {
-    grid-column: 2;
-    grid-row: 1
+
+.plot-button {
+    background-color: rgb(63, 156, 149);
+    /* border: thin solid gray; */
+    border: none;
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+    padding: 0 2rem;
+    margin-right: 0.1rem;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: white;
 }
-.three {
-    grid-column: 1;
-    grid-row: 2
+
+.plot-button:hover {
+    background-color: rgb(58, 148, 142);
+    transition: linear 0.15s;
 }
-.four {
-    grid-column: 2;
-    grid-row: 2
+
+.plot-button:active {
+    background-color: rgb(106, 192, 185);
+
+}
+
+.active {
+    background-color: white;
+    color: black;
+}
+
+.active:hover {
+    background-color: white;
+}
+
+.plot-wrapper {
+    width: 730px;
+    height: 430px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border-radius: 0 10px 10px 10px;
+    box-shadow: 0 0 20px rgb(0,0,0,0.15);
 }

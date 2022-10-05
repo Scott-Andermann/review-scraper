@@ -39,6 +39,7 @@ def add_user(user):
         user.append(directory_id)
         df.loc[len(df.index)] = user
         upload_to_s3(df, 'UserInfo')
+        # copy default file into bucket so tool can be explored without needing to do anything
         return True
     else:
         print('user already exists')

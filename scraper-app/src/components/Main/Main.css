@@ -16,7 +16,7 @@ ul {
 }
 
 .data-wrapper {
-  max-width: 1210px;
+  max-width: 1200px;
   display: grid;
   margin: auto;
   grid-template-columns: 450px auto;

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import Plot from 'react-plotly.js';
 import './Graph.css';
 
@@ -62,6 +62,7 @@ const Graph = ({ data }) => {
             x: subx,
             y: subSent,
             name: element.name.slice(31, 51),
+            // legendgroup: element.name.slice(31, 51),
             type: 'scatter',
             mode: 'markers',
             // marker: { color: 'red' }
@@ -70,6 +71,7 @@ const Graph = ({ data }) => {
             x: subx,
             y: subAvgSentiment,
             name: element.name.slice(31, 51),
+            // legendgroup: element.name.slice(31, 51),
             type: 'scatter',
             mode: 'lines',
         })
@@ -86,45 +88,50 @@ const Graph = ({ data }) => {
             name: element.name.slice(31, 51),
             type: 'scatter',
             mode: 'lines',
-        })  
+        })
     })
 
 
     return (
         <div className='graph-wrapper'>
-            <button name='sentiment' onClick={onClickPlot}>Sentiment</button>
-            <button name='avgSentiment' onClick={onClickPlot}>Average Sentiment</button>
-            <button name='rating' onClick={onClickPlot}>Rating</button>
-            <button name='avgRating' onClick={onClickPlot}>Average Rating</button>
+            <div className='plot-button-wrapper'>
+                <button className={`plot-button ${rating ? 'active' : ''}`} name='rating' onClick={onClickPlot}>Rating</button>
+                <button className={`plot-button ${avgRating && 'active'}`} name='avgRating' onClick={onClickPlot}>Average Rating</button>
+                <button className={`plot-button ${sent && 'active'}`} name='sentiment' onClick={onClickPlot}>Sentiment</button>
+                <button className={`plot-button ${avgSent && 'active'}`} name='avgSentiment' onClick={onClickPlot}>Average Sentiment</button>
+            </div>
+            <div className="plot-wrapper">
             {sent &&
                 <Plot
                     className='one'
+                    // data={[...sentimentTraces, ...avgSentimentTraces]}
                     data={sentimentTraces}
-                    layout={{ width: 600, height: 400, title: 'A fancy Sentiment plot', yaxis: {range: [-1, 1]} }}
+                    layout={{ width: 700, height: 400, title: 'A fancy Sentiment plot', yaxis: { range: [-1, 1] } }}
                 />
             }
             {rating &&
 
-            <Plot
-            className='two'
-            data={starTraces}
-            layout={{ width: 600, height: 400, title: 'A fancy Star Rating plot', yaxis: {range: [0.25, 5.25]} }}
-            />
+                <Plot
+                    className='two'
+                    data={starTraces}
+                    layout={{ width: 700, height: 400, title: 'A fancy Star Rating plot', yaxis: { range: [0.25, 5.25] } }}
+                />
             }
             {avgSent &&
-            <Plot
-            className='three'
-            data={avgSentimentTraces}
-            layout={{ width: 600, height: 400, title: 'Average Sentiment Plot', yaxis: {range: [-1, 1]} }}
-            />
+                <Plot
+                    className='three'
+                    data={avgSentimentTraces}
+                    layout={{ width: 700, height: 400, title: 'Average Sentiment Plot', yaxis: { range: [-1, 1] } }}
+                />
             }
             {avgRating &&
-            <Plot
-            className='four'
-            data={avgStarTraces}
-            layout={{ width: 600, height: 400, title: 'Average Star Rating plot', yaxis: {range: [0.25, 5.25]}}}
-            />
+                <Plot
+                    className='four'
+                    data={avgStarTraces}
+                    layout={{ width: 700, height: 400, title: 'Average Star Rating plot', yaxis: { range: [0.25, 5.25] } }}
+                />
             }
+            </div>
         </div>
     );
 }

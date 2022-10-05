@@ -11,13 +11,13 @@ function App() {
     const {token, removeToken, saveToken} = useToken();
 
     // this is used to bypass the login screen
-    useEffect(() => {
-        // saveToken('OK')
-        const newToken = {'token': 'OK', 'directory': '59436742f76b9d123a01/'};
-        // localStorage.setItem('token', newToken.token);
-        // localStorage.setItem('directory', newToken.directory);
-        saveToken(newToken);
-    }, []);
+    // useEffect(() => {
+    //     // saveToken('OK')
+    //     const newToken = {'token': 'OK', 'directory': '59436742f76b9d123a01/'};
+    //     // localStorage.setItem('token', newToken.token);
+    //     // localStorage.setItem('directory', newToken.directory);
+    //     saveToken(newToken);
+    // }, []);
     
     // const {token, removeToken, saveToken} = useToken();
 

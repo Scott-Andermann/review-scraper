@@ -40,6 +40,11 @@ function App({token, removeToken}) {
         const response = await axios.get(`${url}?directory=${directory}`)
         // console.log(response.data);
         setAllData(response.data.data)
+        const title = response.data.data[0].title;
+        console.log(title);
+        if (title) {
+            setSelection([title])
+        }
     }
 
     const addItem = async () => {

@@ -1,5 +1,5 @@
 .input-wrapper {
-    max-width: 1210px;
+    max-width: 1200px;
     height: 8rem;
     margin: auto;
     margin-top: 1rem;
@@ -57,11 +57,12 @@
 
 .add-item-button {
     background-color: rgb(63, 156, 149);
-    height: 2rem;
+    height: 6rem;
     width: 6rem;
     color: #FBFFFE;
     border: none;
     border-radius: 3px;
+    font-weight: bold;
 }
 
 .add-item-button:hover {

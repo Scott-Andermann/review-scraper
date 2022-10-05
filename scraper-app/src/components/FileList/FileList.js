@@ -1,13 +1,12 @@
 import React from "react";
 import './FileList.css';
 
-const FileList = ({ allData, changeCheck, deleteItem, downloadItem }) => {
+const FileList = ({ allData, changeCheck, deleteItem, downloadItem, selection }) => {
 
     const allCheck = () => {
         console.log('add all titles to analysis');
+        // setSelection to include all titles from allData
     }
-
-    console.log(allData);
 
     return (
             <table className="styled-table">
@@ -25,7 +24,7 @@ const FileList = ({ allData, changeCheck, deleteItem, downloadItem }) => {
                         return (
                             <tr key={dataPoint.title}>
                                 <td>
-                                    <input type='checkbox' onChange={() => changeCheck(dataPoint.title)} disabled={!dataPoint.complete}></input>
+                                    <input type='checkbox' onChange={() => changeCheck(dataPoint.title)} disabled={!dataPoint.complete} defaultChecked={selection.includes(dataPoint.title) && true}></input>
                                 </td>
                                 <td>
                                     {dataPoint.src &&
