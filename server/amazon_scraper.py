@@ -11,7 +11,6 @@ from userLogin import upload_to_s3
 #page = 1
 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding": "gzip, deflate",
            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "DNT": "1", "Connection": "close", "Upgrade-Insecure-Requests": "1"}
-all_reviews = []
 
 
 def get_title(pages, item_no):
@@ -115,7 +114,7 @@ def run_main_node(arg):
     # print({'title': title, 'numberReviews': len(df.index)})
 
 def run_main(item_no, pages, title):
-
+    all_reviews = []
     for page in range(1, int(pages)):
         data = get_data(page, item_no)
         if data == 'exit' or data == []:

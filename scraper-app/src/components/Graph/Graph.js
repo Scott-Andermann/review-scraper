@@ -61,7 +61,7 @@ const Graph = ({ data }) => {
         <div className='wrapper'>
             <Plot
                 className='one'
-                data={[...sentimentTraces, ...avgSentimentTraces]}
+                data={sentimentTraces}
                 layout={{ width: 600, height: 400, title: 'A fancy Sentiment plot' }}
             />
             <Plot
