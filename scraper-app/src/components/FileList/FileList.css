@@ -15,6 +15,10 @@
     overflow: hidden
 }
 
+.checkbox {
+    transform: scale(1.5)
+}
+
 .thumbnail-wrapper {
     width: 80px;
     height: 80px;
@@ -40,6 +44,10 @@
     padding: 12px 15px;
 }
 
+.check {
+    padding: 12px 22px;
+}
+
 .styled-table tbody tr {
     border-bottom: thin solid #dddddd;
     background-color: #fff;
@@ -50,7 +58,7 @@
 }
 
 .styled-table tbody tr:hover {
-    font-weight: bold;
+    /* font-weight: bold; */
     background-color: rgb(63, 156, 149);
 
 }

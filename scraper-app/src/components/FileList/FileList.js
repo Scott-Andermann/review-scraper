@@ -1,18 +1,25 @@
 import React from "react";
 import './FileList.css';
 
-const FileList = ({ allData, changeCheck, deleteItem, downloadItem, selection }) => {
+const FileList = ({ allData, changeCheck, deleteItem, downloadItem, selection, setSelection }) => {
 
-    const allCheck = () => {
-        console.log('add all titles to analysis');
+    const allCheck = (e) => {
+        
+        // console.log(e.target);
+        if (e.target.checked) {
+            const titles = allData.map(element => {return element.title})
+            setSelection(titles)
+        } else {
+            setSelection([])
+        }
         // setSelection to include all titles from allData
     }
 
     return (
             <table className="styled-table">
                 <thead>
-                    <th>
-                        <input type='checkbox' onChange={allCheck}></input>
+                    <th className="check">
+                        <input className='checkbox' type='checkbox' onChange={allCheck}></input>
                     </ th>
                     <th></ th>
                     <th>Item</ th>
@@ -24,7 +31,7 @@ const FileList = ({ allData, changeCheck, deleteItem, downloadItem, selection })
                         return (
                             <tr key={dataPoint.title}>
                                 <td>
-                                    <input type='checkbox' onChange={() => changeCheck(dataPoint.title)} disabled={!dataPoint.complete} defaultChecked={selection.includes(dataPoint.title) && true}></input>
+                                    <input className='checkbox' type='checkbox' onChange={() => changeCheck(dataPoint.title)} disabled={!dataPoint.complete} defaultChecked={selection.includes(dataPoint.title) && true} checked={selection.includes(dataPoint.title) ? true : false}></input>
                                 </td>
                                 <td>
                                     {dataPoint.src &&
