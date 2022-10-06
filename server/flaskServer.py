@@ -26,6 +26,14 @@ def get_all_objects_in_directory(directory):
             all_objects_in_directory.append({"title": key['Key'], "complete": True, "id": key['Key'][0:10]})
     return all_objects_in_directory
 
+@api.route('/')
+def my_profile():
+    response_body = {
+        "name": "Scott Andermann",
+        "about": "It's working so far! need to set up env variables"
+    }
+    return response_body
+
 @api.route('/profile')
 def my_profile():
     response_body = {
