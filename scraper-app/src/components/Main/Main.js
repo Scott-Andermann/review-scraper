@@ -7,7 +7,14 @@ import FileList from "../FileList/FileList";
 import Header from "../Header/Header";
 import './Main.css';
 
+if (process.env.REACT_APP_SERVER_STATE === 'production') {
+    console.log('project in prod state')
+    const axiosConfig = {baseURL: 'https://amazonreviewscraper.herokuapp.com/'}
+    axios.defaults.baseURL = 'https://amazonreviewscraper.herokuapp.com/'
 
+} else {
+    console.log('project in dev state')
+}
 
 function App({token, removeToken}) {
     const [allData, setAllData] = useState(null);
@@ -115,7 +122,7 @@ function App({token, removeToken}) {
             selection: selection
         }
 
-        const response = await axios.post('/get_data', body)
+        const response = await axios.post('/get_data', body, {'content-type': 'application/json'})
         // console.log(response.data);
         setCsvData(response.data)
     }

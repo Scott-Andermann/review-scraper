@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from flask import Flask, request, Response
+from flask_cors import cross_origin
 import boto3
 import json
 import pandas as pd
@@ -45,6 +46,7 @@ def my_profile():
     return response_body
 
 @api.route('/all_objects')
+@cross_origin()
 def get_all_objects():
     args = request.args
     directory = args.get('directory')
@@ -59,6 +61,7 @@ def get_all_objects():
     return response_body
 
 @api.route('/add', methods=['POST'])
+@cross_origin()
 def add_object():
     print('ADD OBJECT /')
     if request.method == 'POST':
@@ -74,6 +77,7 @@ def add_object():
     return 'Error, invalid request'
 
 @api.route('/scrape', methods=['POST'])
+@cross_origin()
 def scrape():
     print('SCRAPING WEBPAGE /')
     if request.method == 'POST':
@@ -92,6 +96,7 @@ def scrape():
     return 'Error, invalid request'
 
 @api.route('/delete', methods=['POST'])
+@cross_origin()
 def delete_object():
     print('DELETE OBJECT /')
     if request.method == 'POST':
@@ -104,6 +109,7 @@ def delete_object():
     return 'Error, invalid request'
 
 @api.route('/get_data', methods=['POST'])
+@cross_origin()
 def get_data():
     print('GET DATA /')
     if request.method == 'POST':
@@ -117,11 +123,13 @@ def get_data():
     return 'Error: invalid input'
 
 @api.route('/download')
+@cross_origin()
 def download_object():
     print('DOWNLOAD OBJECT /')
     return 'success'
 
 @api.route('/login', methods=['POST'])
+@cross_origin()
 def login_user():
     print('LOGIN USER /')
     if request.method == 'POST':
@@ -134,6 +142,7 @@ def login_user():
     return {}
 
 @api.route('/add_user', methods=['POST'])
+@cross_origin()
 def add_user():
     print('ADD USER /')
     if request.method == 'POST':
