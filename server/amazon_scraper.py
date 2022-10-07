@@ -1,4 +1,5 @@
 from types import NoneType
+from xml.sax.handler import property_lexical_handler
 import pandas as pd
 import re
 import time
@@ -13,10 +14,12 @@ from userLogin import upload_to_s3
 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding": "gzip, deflate",
            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "DNT": "1", "Connection": "close", "Upgrade-Insecure-Requests": "1"}
 
+proxy_url = 'http://api.proxiesapi.com/?auth_key=2763fb4208f90f38babd2782225d6fae_sr98766_ooPq87&url='
+
 
 def get_title(pages, item_no):
 
-    r = requests.get(f'https://www.amazon.com/product-reviews/{item_no}/ref=cm_cr_arp_d_viewopt_sr?ie=UTF8&filterByStar=all_stars&reviewerType=all_reviews&pageNumber={pages}#reviews-filter-bar',
+    r = requests.get(f'{proxy_url}http://www.amazon.com/dp/{item_no}',
                      headers=headers)
 
     content = r.content
@@ -26,10 +29,13 @@ def get_title(pages, item_no):
         title_text = soup.find(
             'h1', attrs={'class': 'a-size-large'})
         # print(title_text.text)
+        image = soup.find('img', id='landingImage')
         title = re.sub('[^A-Za-z0-9 ]+', '', title_text.text)
-        return title
+        return title, image['src']
     except AttributeError:
-        return 'exit'
+        return 'exit', 'https://cdn-icons-png.flaticon.com/512/107/107817.png'
+    except TypeError:
+        return 'Scraping Error', 'https://cdn-icons-png.flaticon.com/512/107/107817.png'
 
 def convert_date(date):
     res = re.sub(r'[^\w\s]', '', date)
@@ -40,7 +46,7 @@ def convert_date(date):
 
 def get_data(pages, item_no):
     reviews = []
-    r = requests.get(f'https://www.amazon.com/product-reviews/{item_no}/ref=cm_cr_arp_d_viewopt_sr?ie=UTF8&filterByStar=all_stars&reviewerType=all_reviews&pageNumber={pages}#reviews-filter-bar',
+    r = requests.get(f'{proxy_url}https://www.amazon.com/product-reviews/{item_no}/ref=cm_cr_arp_d_viewopt_sr?ie=UTF8&filterByStar=all_stars&reviewerType=all_reviews&pageNumber={pages}#reviews-filter-bar',
                      headers=headers)
 
     content = r.content
@@ -72,7 +78,7 @@ def get_data(pages, item_no):
         return 'exit'
 
 def get_img_src(item_no):
-    r = requests.get(f'http://www.amazon.com/dp/{item_no}', headers=headers)
+    r = requests.get(f'{proxy_url}http://www.amazon.com/dp/{item_no}', headers=headers)
 
     content = r.content
     print(content)

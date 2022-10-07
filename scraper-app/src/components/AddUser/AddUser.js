@@ -48,7 +48,7 @@ const AddUser = () => {
         e.preventDefault();
         //need to validate email
         const validateEmail = (mail) => {
-            if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail)) {
+            if (/^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$/.test(mail)) {
                 return (true)
             }
             alert("You have entered an invalid email address!")

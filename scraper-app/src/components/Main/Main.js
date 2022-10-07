@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import Graph from "../Graph/Graph";
-import Logout from "../Logout/Logout"
 import InputFields from '../InputFields/InputFields'
 import FileList from "../FileList/FileList";
 import Header from "../Header/Header";
 import './Main.css';
 
 if (process.env.REACT_APP_SERVER_STATE === 'production') {
-    console.log('project in prod state')
-    const axiosConfig = {baseURL: 'https://amazonreviewscraper.herokuapp.com/'}
+    // console.log('project in prod state')
     axios.defaults.baseURL = 'https://amazonreviewscraper.herokuapp.com/'
 
 } else {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Plot from 'react-plotly.js';
 import './Graph.css';
 
@@ -57,6 +57,7 @@ const Graph = ({ data }) => {
             subStar.push(sub.StarRating)
             subAvgSentiment.push(sub.avgSentiment)
             subAvgStars.push(sub.avgStars)
+            return true
         })
         sentimentTraces.push({
             x: subx,
@@ -89,6 +90,7 @@ const Graph = ({ data }) => {
             type: 'scatter',
             mode: 'lines',
         })
+        return true
     })
 
 

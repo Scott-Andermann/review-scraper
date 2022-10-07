@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React from "react";
 import Login from "../Login/Login";
 import Main from '../Main/Main';
 import './App.css';

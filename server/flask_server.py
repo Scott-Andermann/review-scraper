@@ -67,9 +67,9 @@ def add_object():
     if request.method == 'POST':
         data = json.loads(request.data)
         id = data['id']
-        title = get_title(1, id)
+        title, src = get_title(1, id)
         # scrape for image src
-        src = get_img_src(id)
+        # src = get_img_src(id)
         # remove extra spaces from title variable
         while '  ' in title:
             title = title.replace('  ', ' ')
