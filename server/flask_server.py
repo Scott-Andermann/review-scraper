@@ -26,7 +26,7 @@ def get_all_objects_in_directory(directory):
     return all_objects_in_directory
 
 @api.route('/')
-def my_profile():
+def home():
     response_body = {
         "name": "Scott Andermann",
         "about": "It's working so far! need to set up env variables"
