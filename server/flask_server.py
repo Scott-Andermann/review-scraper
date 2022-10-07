@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 from flask import Flask, request, Response
 import boto3
 import json
@@ -8,12 +10,13 @@ from indexMethods import add_to_index, remove_from_index, get_objects_from_index
 import userLogin
 
 api = Flask(__name__)
-s3_client = boto3.client('s3')
-# create bucket with random string that is linked to username?
+load_dotenv()
+AWS_ACCESS_KEY_ID= os.environ['AWS_ACCESS_KEY_ID']
+AWS_SECRET_ACCESS_KEY= os.environ['AWS_SECRET_ACCESS_KEY']
+s3_client = boto3.client('s3',
+    aws_access_key_id=AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
 BUCKET_NAME = 'amazonreviewdata'
-# all_objects = []
-users = {'Scott': 'password', 'Kelsey': 'Huck'}
-# all_objects = []
 
 def get_all_objects_in_directory(directory):
     all_objects_in_directory = []

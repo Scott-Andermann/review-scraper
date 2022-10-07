@@ -8,6 +8,7 @@ server/.aws
 server/env
 server/__pycache__
 __pycache__
+*.env
 *.pyc
 .pnp.js
 
