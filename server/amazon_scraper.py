@@ -51,11 +51,11 @@ def get_data(pages, item_no):
 
     content = r.content
     soup = BeautifulSoup(content, features='lxml')
-
+    print(soup)
     # print(soup.prettify())
     try:
         for d in soup.findAll('div', attrs={'class': 'a-section celwidget'}):
-            # print('d' + d)
+            # print('div found: ' + d)
             try:
                 title = d.find('a', attrs={'data-hook': 'review-title'})
                 rev = d.find('span', attrs={'data-hook': 'review-body'})
@@ -71,7 +71,7 @@ def get_data(pages, item_no):
             except AttributeError as e:
                 print(e)
                 continue
-        # print(reviews)
+        print('Reviews: ', reviews)
         return reviews
     except AttributeError as e:
         print('ERROR: ' + e)

@@ -8,7 +8,7 @@ import './Main.css';
 
 if (process.env.REACT_APP_SERVER_STATE === 'production') {
     // console.log('project in prod state')
-    axios.defaults.baseURL = 'https://amazonreviewscraper.herokuapp.com/'
+    axios.defaults.baseURL = 'https://amazonreviewscraper.herokuapp.com'
 
 } else {
     console.log('project in dev state')

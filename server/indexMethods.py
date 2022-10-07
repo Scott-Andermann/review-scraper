@@ -12,7 +12,7 @@ def get_objects_from_index(directory):
     # return objects
 
 def add_to_index(item, directory):
-    print(directory)
+    # print(directory)
     df = pd.read_csv(f"s3://{BUCKET_NAME}/{directory}index.csv")
     df.loc[len(df.index)] = item
     upload_to_s3(df, 'index', directory)
