@@ -81,6 +81,7 @@ def get_img_src(item_no):
         return element['src']
     except AttributeError as e:
         print('Error: ', e)
+        return 'https://cdn-icons-png.flaticon.com/512/107/107817.png'
 
 # def upload_to_s3(df, filename):
 #     print('uploading')

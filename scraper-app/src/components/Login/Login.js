@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import {sha256} from 'js-sha256';
 import './Login.css';
 
-const url = '/login'
+const url = 'https://amazonreviewscraper.herokuapp.com//login'
 
 const loginUser = async (credentials) => {
     // console.log(credentials);
