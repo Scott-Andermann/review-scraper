@@ -1,3 +1,4 @@
+from types import NoneType
 import pandas as pd
 import re
 import time
@@ -81,6 +82,8 @@ def get_img_src(item_no):
         return element['src']
     except AttributeError as e:
         print('Error: ', e)
+    except TypeError as e:
+        print('Error: ', e)
         return 'https://cdn-icons-png.flaticon.com/512/107/107817.png'
 
 # def upload_to_s3(df, filename):
@@ -149,4 +152,4 @@ def run_main(item_no, pages, title):
 # run_main('B08VF6ZVMH', '10')
 
 if __name__ == "__main__":
-    get_img_src('B079JLY5M5')
+    print(get_img_src('B079JLY5M5'))

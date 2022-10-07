@@ -82,6 +82,7 @@ def scrape():
     print('SCRAPING WEBPAGE /')
     if request.method == 'POST':
         data = json.loads(request.data)
+        print(data)
         id = data['id']
         page_count = data['pageCount']
         title = data['title']
