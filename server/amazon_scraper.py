@@ -51,7 +51,7 @@ def get_data(pages, item_no):
 
     content = r.content
     soup = BeautifulSoup(content, features='lxml')
-    print(soup)
+    # print(soup)
     # print(soup.prettify())
     try:
         for d in soup.findAll('div', attrs={'class': 'a-section celwidget'}):
