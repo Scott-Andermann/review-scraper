@@ -82,12 +82,12 @@ def scrape():
     print('SCRAPING WEBPAGE /')
     if request.method == 'POST':
         data = json.loads(request.data)
-        print(data)
+        # print(data)
         id = data['id']
         page_count = data['pageCount']
         title = data['title']
         src = data['src']
-        print(title)
+        # print(title)
         print(f'Scraping {page_count} pages')
         num = run_main(id, page_count, title)
         item = [id, src, title + '.csv', num, True]

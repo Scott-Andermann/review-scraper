@@ -75,6 +75,7 @@ def get_img_src(item_no):
     r = requests.get(f'http://www.amazon.com/dp/{item_no}', headers=headers)
 
     content = r.content
+    print(content)
     soup = BeautifulSoup(content, features='lxml')
 
     try:
