@@ -7,12 +7,12 @@ const useToken = () => {
         // const tokenString = sessionStorage.getItem('token')
         const tokenString = localStorage.getItem('token')
         const userToken = JSON.parse(tokenString);
-        // console.log(userToken);
         if (userToken !== null) 
-            if (userToken.token === 'OK')
+            if (userToken === 'OK')
                 // console.log(userToken.token);
-                return userToken.token
+                return userToken
     }
+    console.log('setting token');
     const [token, setToken] = useState(getToken());
 
     const saveToken = userToken => {

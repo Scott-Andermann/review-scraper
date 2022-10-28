@@ -104,7 +104,7 @@ def delete_object():
         data = json.loads(request.data)
         item_title = data['itemTitle']
         s3_client.delete_object(Bucket=BUCKET_NAME, Key=f'{item_title}')
-        print(item_title)
+        # print(item_title)
         remove_from_index(item_title, item_title[0:21])
         return 'success'
     return 'Error, invalid request'

@@ -1,7 +1,16 @@
-import React from "react";
+import React, {useState} from "react";
+import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import './InputFields.css';
 
 const Input = ({webPage, setWebPage, addItem, setPageCount}) => {
+
+    const [isLoading, setIsLoading] = useState(false);
+
+    const onClick = () => {
+        setIsLoading(true);
+        addItem();
+    }
+
     return ( 
         <div className='input-wrapper'>
             {/* <h4>Enter URL of item:</h4> */}
@@ -14,7 +23,7 @@ const Input = ({webPage, setWebPage, addItem, setPageCount}) => {
                     <option value={50}>Deep Dive</option>
                 </select>
             </div>
-            <button className='add-item-button' onClick={addItem}>Add item</button>
+            <button className='add-item-button' onClick={onClick} disabled={!isLoading}>{isLoading ? <LoadingSpinner /> : 'Add Item'}</button>
             {/* <input type='number' value={pageCount} onChange={onPageChange}></input> */}
         </div>
      );

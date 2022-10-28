@@ -21,7 +21,12 @@ function App() {
     
     // const {token, removeToken, saveToken} = useToken();
 
-    if (token === 'OK')
+    // console.log(localStorage.getItem('token'));
+    const item  = localStorage.getItem('token')
+    
+
+
+    if (token === 'OK' || item === 'OK')
         return <Main removeToken={removeToken}/>
 
     return <Login saveToken={saveToken} />

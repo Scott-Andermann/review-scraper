@@ -71,7 +71,7 @@ def get_data(pages, item_no):
             except AttributeError as e:
                 print(e)
                 continue
-        print('Reviews: ', reviews)
+        # print('Reviews: ', reviews)
         return reviews
     except AttributeError as e:
         print('ERROR: ' + e)
@@ -81,7 +81,7 @@ def get_img_src(item_no):
     r = requests.get(f'{proxy_url}http://www.amazon.com/dp/{item_no}', headers=headers)
 
     content = r.content
-    print(content)
+    # print(content)
     soup = BeautifulSoup(content, features='lxml')
 
     try:
