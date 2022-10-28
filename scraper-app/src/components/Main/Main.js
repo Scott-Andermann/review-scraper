@@ -82,7 +82,7 @@ function App({token, removeToken}) {
         const response = await axios.post('/scrape', body)
         console.log(response);
         const num = response.data.num;
-        // should I call initializeData() again after scraping is finished?  That way server controls then data list
+        // should I call initializeData() again after scraping is finished?  That way server controls the data list
         setAllData(prev => prev.map(obj => {
             if (obj.id === id) {
                 return { ...obj, complete: true, num: num };
@@ -140,7 +140,7 @@ function App({token, removeToken}) {
         <div className='App'>
             <Header removeToken={removeToken} />
             {/* Replace with Input component */}
-            <InputFields webPage={webPage} setWebPage={setWebPage} addItem={addItem} pageCount={pageCount} setPageCount={setPageCount} />
+            <InputFields webPage={webPage} setWebPage={setWebPage} addItem={addItem} pageCount={pageCount} setPageCount={setPageCount} allData={allData}/>
             <div className='data-wrapper'>
                 <FileList allData={allData} selection={selection} setSelection={setSelection} changeCheck={changeCheck} deleteItem={deleteItem} downloadItem={downloadItem} />
                 {csvData.length > 0 && <Graph data={csvData} />}

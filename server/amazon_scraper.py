@@ -44,9 +44,13 @@ def convert_date(date):
     parsed = datetime.strptime(s, '%B %d %Y')
     return parsed
 
-def get_data(pages, item_no):
+def get_data(page, item_no):
+    print(page)
     reviews = []
-    r = requests.get(f'{proxy_url}https://www.amazon.com/product-reviews/{item_no}/ref=cm_cr_arp_d_viewopt_sr?ie=UTF8&filterByStar=all_stars&reviewerType=all_reviews&pageNumber={pages}#reviews-filter-bar',
+    # Proxy seems to be broken
+    # r = requests.get(f'{proxy_url}https://www.amazon.com/product-reviews/{item_no}/ref=cm_cr_arp_d_paging_btm_next_2?ie=UTF8&reviewerType=all_reviews&pageNumber={page}',
+    #                  headers=headers)
+    r = requests.get(f'https://www.amazon.com/product-reviews/{item_no}/ref=cm_cr_arp_d_paging_btm_next_2?ie=UTF8&reviewerType=all_reviews&pageNumber={page}',
                      headers=headers)
 
     content = r.content
@@ -78,7 +82,9 @@ def get_data(pages, item_no):
         return 'exit'
 
 def get_img_src(item_no):
-    r = requests.get(f'{proxy_url}http://www.amazon.com/dp/{item_no}', headers=headers)
+    # Proxy seems to be broken
+    # r = requests.get(f'{proxy_url}http://www.amazon.com/dp/{item_no}', headers=headers)
+    r = requests.get(f'http://www.amazon.com/dp/{item_no}', headers=headers)
 
     content = r.content
     # print(content)
@@ -137,12 +143,14 @@ def run_main_node(arg):
 
 def run_main(item_no, pages, title):
     all_reviews = []
-    for page in range(1, int(pages)):
+    for page in range(1, int(pages)+1):
         data = get_data(page, item_no)
         if data == 'exit' or data == []:
             break
         all_reviews.append(data)
         pause = random.uniform(1, 5)
+        print(all_reviews[page-1][0])
+        # print(all_reviews[0])
         time.sleep(pause)
     def flatten(l): return [item for sublist in l for item in sublist]
     df = pd.DataFrame(flatten(all_reviews), columns=[
@@ -151,8 +159,9 @@ def run_main(item_no, pages, title):
     df = sentiment(df)
     # print(df)
     upload_to_s3(df, title)
-    return len(df.index)
     # print(f'Finished scraping {title}, {len(df.index)} reviews gathered')
+    # print(df.head(10))
+    return len(df.index)
     # print({'title': title, 'numberReviews': len(df.index)})
 
 

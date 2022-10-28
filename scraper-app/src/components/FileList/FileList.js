@@ -1,4 +1,5 @@
 import React from "react";
+import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import './FileList.css';
 
 const FileList = ({ allData, changeCheck, deleteItem, downloadItem, selection, setSelection }) => {
@@ -48,8 +49,14 @@ const FileList = ({ allData, changeCheck, deleteItem, downloadItem, selection, s
                                     <p>{dataPoint.num}</p>
                                 </td>
                                 <td>
-                                    {dataPoint.complete && <button onClick={() => deleteItem(dataPoint.title)}>Delete</button>}
-                                    {dataPoint.complete && <button onClick={() => downloadItem(dataPoint.title)}>Download</button>}
+                                    {dataPoint.complete ? 
+                                    // <LoadingSpinner invert={true}/>
+                                    <>
+                                        <button onClick={() => deleteItem(dataPoint.title)}>Delete</button>
+                                        <button onClick={() => downloadItem(dataPoint.title)}>Download</button>
+                                    </> 
+                                    : <LoadingSpinner invert={true}/>
+                                    }
                                 </td>
                             </tr>
                         )
